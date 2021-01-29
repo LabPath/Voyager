@@ -72,7 +72,7 @@ module.exports = {
     name: 'commandName',
     alternatives: ['alternative1', 'alternative2'],
     execute(message, args) {
-		// Your code here
+	// Your code here
         // Can also be async code. Just put "async" before "execute(message, args)"
     }
 }
