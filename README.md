@@ -4,12 +4,14 @@ Custom made Discord bot designed to help the Lab Path community.
 
 # Table of contents <!-- omit in toc --> 
 - [Set-up](#set-up)
+- [Development](#development)
 - [Documentation](#documentation)
 - [Commands](#commands)
 - [`.env`](#env)
 - [Directories](#directories)
 - [Creating new commands](#creating-new-commands)
 - [Embeds](#embeds)
+- [Database](#database)
 
 # Set-up
 1. Clone this repository.
@@ -17,6 +19,9 @@ Custom made Discord bot designed to help the Lab Path community.
 3. Create `.env` file at root directory (same level as `package.json`). Check [`.env`](#env) for more info.
 4. Run `npm run dev` to start the bot.
 5. Use `Ctrl + C` to stop the bot.
+
+# Development
+Do not commit directly to `master`, please create a Branch first (with a suggestive name based on your changes) and then ask for a merge.
 
 # Documentation
 * [Discord Developer portal](https://discord.com/developers/applications/804537849747734578/bot)
@@ -33,13 +38,19 @@ In order to use a command, you'll need to type the prefix of the bot and then th
 # `.env`
 The environment file has various variables that Voyager uses:
 
-|    Variable     | Description                                                                                                           |
-| :-------------: | :-------------------------------------------------------------------------------------------------------------------- |
-| `VOYAGER_TOKEN` | The Token given by Discord. You can get it [here](https://discord.com/developers/applications/804537849747734578/bot) |
+|    Variable     | Description                                                                                                            |
+| :-------------: | :--------------------------------------------------------------------------------------------------------------------- |
+| `VOYAGER_TOKEN` | The Token given by Discord. You can get it [here](https://discord.com/developers/applications/804537849747734578/bot). |
+|    `DB_USER`    | Database user name.                                                                                                    |
+|  `DB_PASSWORD`  | Database password.                                                                                                     |
+|    `DB_NAME`    | Database name.                                                                                                         |
 
 Example `.env` file:
 ```
 VOYAGER_TOKEN=KLJAGN876WQ34M98UWSEF9O7J8WYM3RMY8O9SHEF
+DB_USER=db_username
+DB_PASSWORD=db_password
+DB_NAME=db_name
 ```
 
 # Directories
@@ -48,8 +59,9 @@ Voyager has various directories, each with their respective purpose:
 |   Directory    | Description                                                                                                                                             |
 | :------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
 |   `commands`   | A collection of `.js` files that each represent one command.                                                                                            |
+|   `database`   | A collection of folders and `.js` files that are anything database related.                                                                             |
 |     `lib`      | A collection of `.js` files whose purpose is to have functions available to main files. These files will always export a function that returns a value. |
-|    `utils`     | A folder with folders for any type of files without **code**.                                                                                               |
+|    `utils`     | A folder with folders for any type of files without **code**.                                                                                           |
 | `utils/assets` | A collection of images used throughout the project.                                                                                                     |
 
 # Creating new commands
@@ -75,9 +87,7 @@ If you're unsure, a simple `console.log(message)` and `console.log(args)` will m
 # Embeds
 Embeds are arguably the prettiest things on Discord. Let's use them! 
 
-The best way to use them, is to call the `lib/embeds.js` file and use its functions to generate an embed.
-
-If you want a very specific embed, and think it's not worth to create a function for it, here's a quick snippet to create one:
+The best way to use them, is to call the `lib/embeds.js` file and use its functions to generate an embed. If you want a very specific embed, and think it's not worth to create a function for it, here's a quick snippet to create one:
 ```js
 // Require: Packages
 const discord = require('discord.js');
@@ -100,3 +110,6 @@ const exampleEmbed = new discord.MessageEmbed()
 // Send embed
 message.channel.send(exampleEmbed)
 ```
+
+# Database
+Voyager uses MongoDB as its database of choice, which is hosted at mongoDB atlas (AWS in this case). There's a **max of 500MB** free usable space. Anything related to the database should be inside the `database` folder. If you're a developer and want to have access to the DB through the Web (using Atlas), please create an account [here](https://account.mongodb.com/account/register) and ask @Zebiano for an invite.

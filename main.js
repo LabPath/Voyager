@@ -4,11 +4,11 @@ const discord = require('discord.js')
 const fs = require("fs")
 
 // Require: Files
+require('./database/database')
 const config = require('./config.json')
 const package = require('./package.json')
 
-// Require: Lib
-const helper = require('./lib/helper')
+// Require: Libs
 const echo = require('./lib/echo')
 
 // Variables
