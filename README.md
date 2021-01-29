@@ -3,19 +3,13 @@ Custom made Discord bot designed to help the Lab Path community.
 <!-- [Invite me!](https://discord.com/oauth2/authorize?client_id=804537849747734578&scope=bot&permissions=8) -->
 
 # Table of contents <!-- omit in toc --> 
-- [Commands](#commands)
 - [Set-up](#set-up)
+- [Documentation](#documentation)
+- [Commands](#commands)
 - [`.env`](#env)
 - [Directories](#directories)
 - [Creating new commands](#creating-new-commands)
 - [Embeds](#embeds)
-
-# Commands
-In order to use a command, you'll need to type the prefix of the bot and then the command. For example: `@Voyager ping`
-
-| Command | Description    |
-| :-----: | :------------- |
-| `ping`  | Pings the bot. |
 
 # Set-up
 1. Clone this repository.
@@ -23,6 +17,18 @@ In order to use a command, you'll need to type the prefix of the bot and then th
 3. Create `.env` file at root directory (same level as `package.json`). Check [`.env`](#env) for more info.
 4. Run `npm run dev` to start the bot.
 5. Use `Ctrl + C` to stop the bot.
+
+# Documentation
+* [Discord Developer portal](https://discord.com/developers/applications/804537849747734578/bot)
+* [discord.js docs](https://discord.js.org/#/docs/main/stable/general/welcome)
+* [Discord JS Guides](https://discordjs.guide/)
+
+# Commands
+In order to use a command, you'll need to type the prefix of the bot and then the command. For example: `@Voyager ping`
+
+| Command | Description    |
+| :-----: | :------------- |
+| `ping`  | Pings the bot. |
 
 # `.env`
 The environment file has various variables that Voyager uses:
@@ -43,7 +49,7 @@ Voyager has various directories, each with their respective purpose:
 | :------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
 |   `commands`   | A collection of `.js` files that each represent one command.                                                                                            |
 |     `lib`      | A collection of `.js` files whose purpose is to have functions available to main files. These files will always export a function that returns a value. |
-|    `utils`     | A folder with folders for any type of files without code.                                                                                               |
+|    `utils`     | A folder with folders for any type of files without **code**.                                                                                               |
 | `utils/assets` | A collection of images used throughout the project.                                                                                                     |
 
 # Creating new commands
