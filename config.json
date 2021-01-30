@@ -1,6 +1,16 @@
 {
     "voyager": {
         "prefix": "<@!804537849747734578>",
-        "client_id": "804537849747734578"
+        "client_id": "804537849747734578",
+        "defaultPermissions": 68608
+    },
+    "colors": {
+        "blue": "3e8ed4"
+    },
+    "texts": {
+        "userLacksPerms": "You lack permissions!",
+        "wrongChannel": "I cannot do that here!",
+        "botLacksPerms": "I don't have enough permissions to do that! Click here to grant me the necessary permissions:",
+        "resetDatabaseGuild": "Something has gone wrong on my side, I had to reset some settings. Please add developers (aka people you trust) to the bot again with the `dev` command. Sorry for the hassle!"
     }
 }

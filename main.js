@@ -7,6 +7,7 @@ const fs = require("fs")
 require('./database/database')
 const config = require('./config.json')
 const package = require('./package.json')
+const controllerGuild = require('./database/Guild/controller')
 
 // Require: Libs
 const echo = require('./lib/echo')
@@ -38,6 +39,40 @@ client.once('ready', function () {
     echo.info('Running version ' + package.version)
 })
 
+// First time entering a Guild
+client.on('guildCreate', async function (guild) {
+    // Variables
+    arrayDevelopers = []
+
+    // Push owner of guild
+    arrayDevelopers.push(guild.ownerID)
+
+    // Push members with Admin rights as well // TODO: console.log(guild.members.cache) and check if every member pops up!
+    console.log(guild.members.cache)
+    guild.roles.cache.each((role) => {
+        if (role.permissions.bitfield == 8) {
+            guild.members.cache.each((member) => {
+                if (member._roles.includes(role.id) && !arrayDevelopers.includes(member.id)) arrayDevelopers.push(member.id)
+            })
+        }
+    })
+
+    // Save Guild to database
+    await controllerGuild.post({ guild_id: guild.id, permissions: config.voyager.defaultPermissions, developers: arrayDevelopers })
+})
+
+// Leaving a guild
+client.on('guildDelete', async function (guild) {
+    // Variables
+    const dbGuild = await controllerGuild.getOne({ guild_id: guild.id })
+
+    // Remove guild from Database
+    if (dbGuild.code != 404 || !'err' in dbGuild) {
+        await controllerGuild.delete(dbGuild.data._id)
+        echo.info(`Left Guild with ID ${dbGuild.data._id}.`)
+    }
+})
+
 // Act when command is issued
 client.on('message', async function (message) {
     // console.log(message.content)
@@ -49,26 +84,35 @@ client.on('message', async function (message) {
     if (message.content.startsWith(config.voyager.prefix) && message.author.id != config.voyager.client_id) {
         // Variables
         const args = message.content.slice(config.voyager.prefix.length).trim().split(/ +/)
-        let command = args.shift().toLowerCase()
+        let commandInput = args.shift().toLowerCase()
         // console.log(args)
         // console.log(command)
 
-        // If command exists
-        if (client.commands.has(command)) {
-            // Try to execute it
-            try { client.commands.get(command).execute(message, args) }
-            catch (err) { echo.error(err) }
-        }
-        // Check for alternatives
-        else {
-            for (i in alternatives) {
-                if (alternatives[i].includes(command)) {
-                    // Try to execute it
-                    try { client.commands.get(i).execute(message, args) }
-                    catch (err) { echo.error(err) }
-                    break
-                }
+        // Check if command exists (with aliases)
+        const command = client.commands.get(commandInput) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandInput))
+        if (!command) return
+
+        // Variables
+        dbGuild = null
+
+        // Check if command needs dbGuild
+        if (command.needsDatabaseGuild) {
+            // Get Current Guild
+            dbGuild = await controllerGuild.getOne({ guild_id: message.guild.id })
+            // Not Found
+            if (dbGuild.code == 404) {
+                // Create new
+                dbGuild = await controllerGuild.post({ guild_id: guild.id, permissions: config.voyager.defaultPermissions, developers: arrayDevelopers })
+                if ('err' in dbGuild) {
+                    echo.error(`Creating Guild. Code ${dbGuild.code}.`)
+                    echo.error(dbGuild.err)
+                    return message.channel.send('There was an error, sorry.') // TODO: Make a better error message for discord users
+                } else guild.ownerID.send(config.texts.resetDatabaseGuild) // TODO: Has to be tested
             }
         }
+
+        // Try to execute it
+        try { command.execute(message, args, dbGuild) }
+        catch (err) { echo.error(err) }
     }
 })
