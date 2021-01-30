@@ -58,7 +58,7 @@ client.on('guildCreate', async function (guild) {
     })
 
     // Save Guild to database
-    await controllerGuild.post({ guild_id: guild.id, permissions: config.voyager.defaultPermissions, developers: arrayDevelopers })
+    await controllerGuild.post({ guild_id: guild.id, developers: arrayDevelopers })
 })
 
 // Leaving a guild
@@ -102,7 +102,7 @@ client.on('message', async function (message) {
             // Not Found
             if (dbGuild.code == 404) {
                 // Create new
-                dbGuild = await controllerGuild.post({ guild_id: guild.id, permissions: config.voyager.defaultPermissions, developers: arrayDevelopers })
+                dbGuild = await controllerGuild.post({ guild_id: guild.id, developers: arrayDevelopers })
                 if ('err' in dbGuild) {
                     echo.error(`Creating Guild. Code ${dbGuild.code}.`)
                     echo.error(dbGuild.err)
