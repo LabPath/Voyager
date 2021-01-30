@@ -1,6 +1,6 @@
 # Voyager <!-- omit in toc -->
 Custom made Discord bot designed to help the Lab Path community.
-<!-- [Invite me!](https://discord.com/oauth2/authorize?client_id=804537849747734578&scope=bot&permissions=8) -->
+<!-- [Invite me!](https://discord.com/oauth2/authorize?client_id=804537849747734578&scope=bot&permissions=68608) Default permissions are: View Channels, Send Messages and Read Message History (68608). -->
 
 # Table of contents <!-- omit in toc --> 
 - [Set-up](#set-up)
@@ -70,13 +70,35 @@ It's actually pretty simple which is cool. Create a new file with the name of th
 // Exports
 module.exports = {
     name: 'commandName',
-    alternatives: ['alternative1', 'alternative2'],
+	aliases: ['alias1', 'alias2'],
+	permissions: ['PERMISSION1', 'PERMISSION2'],
+	devOnly: false,
+    needsDatabaseGuild: false,
+    channelTypes: ['dm', 'text', 'news'],
     execute(message, args) {
-	// Your code here
+		// Check for Bot permissions
+        const missingPerms = helper.checkBotPermissions(message, this.permissions)
+        if (missingPerms.length != 0)
+            return message.channel.send(helper.generatePermissionLink(missingPerms, message))
+        // If devOnly == true and user has permissions
+        if (this.devOnly && !dbGuild.data.developers.includes(message.author.id))
+            return message.channel.send(config.texts.userLacksPerms)
+        // Check if in correct channel type
+        if (!helper.checkChannelType(message, this.channelTypes))
+            return message.channel.send(config.texts.wrongChannel)
+			
+		// Your code here
         // Can also be async code. Just put "async" before "execute(message, args)"
     }
 }
 ```
+
+* `name`: `String`. Cannot have any spaces. Using `@Voyager commandName` triggers `execute()`.
+* `aliases`: `Array` of `strings`. Each entry cannot have any spaces. Using `@Voyager alias1` triggers `execute()`.
+* `permissions`: `Array` of `strings`. Each entry has to be a [permission flag](https://discord.js.org/#/docs/main/stable/class/Permissions?scrollTo=s-FLAGS).
+* `devOnly`: `Boolean`. If set to true, indicates only a "developer" is able to run the command.
+* `needsDatabaseGuild`: `Boolean`. If set to true, gets dbGuild from the database.
+* `channelTypes`: `Array`. Possible entries are `dm`, `text` and `news`. Used to check if command was called in correct channel type.
 
 What do the `execute()` arguments mean?
 * `message`: The whole message object discord.js offers. Pretty cool if you ask me.
