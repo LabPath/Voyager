@@ -47,15 +47,16 @@ client.on('guildCreate', async function (guild) {
     // Push owner of guild
     arrayDevelopers.push(guild.ownerID)
 
-    // Push members with Admin rights as well // TODO: console.log(guild.members.cache) and check if every member pops up!
+    // TODO: guild.members.cache does not show every user! And I'm not entirely sure why, but it probably has to do with "privileged intents". Which basically means this doesn't work, as the bot cannot find all admin members.
+    // Push members with Admin rights as well
     console.log(guild.members.cache)
-    guild.roles.cache.each((role) => {
+    /* guild.roles.cache.each((role) => {
         if (role.permissions.bitfield == 8) {
             guild.members.cache.each((member) => {
                 if (member._roles.includes(role.id) && !arrayDevelopers.includes(member.id)) arrayDevelopers.push(member.id)
             })
         }
-    })
+    }) */
 
     // Save Guild to database
     await controllerGuild.post({ guild_id: guild.id, developers: arrayDevelopers })
