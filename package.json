@@ -15,9 +15,11 @@
     "afkarena",
     "labpath"
   ],
-  "author": "Sebastião Barros - Zebiano",
+  "author": "Lab Path Team",
   "contributors": [
-    "FiyaFly"
+    "@Diogo-Fernandes",
+    "@FiyaFly",
+    "@Zebiano"
   ],
   "license": "MIT",
   "bugs": {
