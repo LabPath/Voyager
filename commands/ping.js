@@ -15,9 +15,9 @@ module.exports = {
     channelTypes: ['dm', 'text', 'news'],
     async execute(message, args) {
         // Check for Bot permissions
-        const missingPerms = helper.checkBotPermissions(message, this.permissions)
-        if (missingPerms.length != 0)
-            return message.channel.send(helper.generatePermissionLink(missingPerms, message))
+        const objectPermissions = helper.checkBotPermissions(message, this.permissions)
+        if (objectPermissions.necessary.length != 0)
+            return message.channel.send(helper.generatePermissionLink(objectPermissions, message))
         // If devOnly == true and user has permissions
         if (this.devOnly && !dbGuild.data.developers.includes(message.author.id))
             return message.channel.send(config.texts.userLacksPerms)
