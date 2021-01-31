@@ -9,7 +9,7 @@ const config = require('../config.json')
 module.exports = {
     name: 'ping',
     aliases: [],
-    permissions: ['EMBED_LINKS', 'ATTACH_FILES'],
+    permissions: [],
     devOnly: false,
     needsDatabaseGuild: false,
     channelTypes: ['dm', 'text', 'news'],

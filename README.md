@@ -1,6 +1,6 @@
 # Voyager <!-- omit in toc -->
 Custom made Discord bot designed to help the Lab Path community.
-<!-- [Invite me!](https://discord.com/oauth2/authorize?client_id=804537849747734578&scope=bot&permissions=68608) Default permissions are: View Channels, Send Messages and Read Message History (68608). -->
+<!-- [Invite me!](https://discord.com/oauth2/authorize?client_id=804537849747734578&scope=bot&permissions=511040) -->
 
 # Table of contents <!-- omit in toc --> 
 - [Set-up](#set-up)
@@ -67,6 +67,12 @@ Voyager has various directories, each with their respective purpose:
 # Creating new commands
 It's actually pretty simple which is cool. Create a new file with the name of the command inside the `commands` folder. Paste the following code inside:
 ```js
+// Require: Libs
+const helper = require('../lib/helper')
+
+// Require: Files
+const config = require('../config.json')
+
 // Exports
 module.exports = {
     name: 'commandName',
@@ -75,13 +81,13 @@ module.exports = {
 	devOnly: false,
     needsDatabaseGuild: false,
     channelTypes: ['dm', 'text', 'news'],
-    execute(message, args) {
+    execute(message, args, dbGuild) {
 		// Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)
         if (objectPermissions.necessary.length != 0)
             return message.channel.send(helper.generatePermissionLink(objectPermissions, message))
         // If devOnly == true and user has permissions
-        if (this.devOnly && !dbGuild.data.developers.includes(message.author.id))
+        if (this.devOnly && !dbGuild.developers.includes(message.author.id))
             return message.channel.send(config.texts.userLacksPerms)
         // Check if in correct channel type
         if (!helper.checkChannelType(message, this.channelTypes))
@@ -135,3 +141,5 @@ message.channel.send(exampleEmbed)
 
 # Database
 Voyager uses MongoDB as its database of choice, which is hosted at mongoDB atlas (AWS in this case). There's a **max of 500MB** free usable space. Anything related to the database should be inside the `database` folder. If you're a developer and want to have access to the DB through the Web (using Atlas), please create an account [here](https://account.mongodb.com/account/register) and ask @Zebiano for an invite.
+
+* `Guild`: Stores various info about every guild the bot is in.
