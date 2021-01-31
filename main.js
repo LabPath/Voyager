@@ -35,9 +35,12 @@ for (const file of commandFiles) {
 client.login(process.env.VOYAGER_TOKEN)
 
 // Start bot
-client.once('ready', function () {
+client.once('ready', async function () {
     echo.success('Voyager up and running!')
     echo.info('Running version ' + package.version)
+
+    // Run a subreddit check every 30 mins
+    setInterval(() => { helper.checkSubreddits(client) }, config.reddit.lab_path.checkInterval)
 })
 
 // First time entering a Guild
