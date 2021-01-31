@@ -11,6 +11,7 @@ const controllerGuild = require('./database/Guild/controller')
 
 // Require: Libs
 const echo = require('./lib/echo')
+const helper = require('./lib/helper')
 
 // Variables
 const client = new discord.Client()
@@ -49,7 +50,7 @@ client.on('guildCreate', async function (guild) {
 
     // TODO: guild.members.cache does not show every user! And I'm not entirely sure why, but it probably has to do with "privileged intents". Which basically means this doesn't work, as the bot cannot find all admin members.
     // Push members with Admin rights as well
-    console.log(guild.members.cache)
+    // console.log(guild.members.cache)
     /* guild.roles.cache.each((role) => {
         if (role.permissions.bitfield == 8) {
             guild.members.cache.each((member) => {
@@ -77,12 +78,14 @@ client.on('guildDelete', async function (guild) {
 // Act when command is issued
 client.on('message', async function (message) {
     // console.log(message.content)
+    // Variables
+    const voyagerRoleId = message.guild.roles.cache.find(role => role.name == "Voyager" && role.managed == true).id
 
     // If message is only a bot ping
     if (message.content == config.voyager.prefix) return message.channel.send(`Use \`@Voyager help\` for a list of commands.`)
 
-    // If message starts with bot prefix and message.author is NOT Voyager 
-    if (message.content.startsWith(config.voyager.prefix) && message.author.id != config.voyager.client_id) {
+    // If message starts with bot prefix or Voyager role and message.author is NOT Voyager 
+    if ((message.content.startsWith(config.voyager.prefix) || message.content.startsWith(helper.getRoleAsMentionFromId(voyagerRoleId))) && message.author.id != config.voyager.client_id) {
         // Variables
         const args = message.content.slice(config.voyager.prefix.length).trim().split(/ +/)
         let commandInput = args.shift().toLowerCase()
@@ -97,18 +100,33 @@ client.on('message', async function (message) {
         dbGuild = null
 
         // Check if command needs dbGuild
-        if (command.needsDatabaseGuild) {
+        if (command.needsDatabaseGuild || command.devOnly) {
             // Get Current Guild
             dbGuild = await controllerGuild.getOne({ guild_id: message.guild.id })
+
             // Not Found
             if (dbGuild.code == 404) {
                 // Create new
-                dbGuild = await controllerGuild.post({ guild_id: guild.id, developers: arrayDevelopers })
+                dbGuild = await controllerGuild.post({ guild_id: message.guild.id, role_id: voyagerRoleId, developers: message.guild.ownerID })
+
+                // Check for error in dbGuild
                 if ('err' in dbGuild) {
                     echo.error(`Creating Guild. Code ${dbGuild.code}.`)
                     echo.error(dbGuild.err)
                     return message.channel.send('There was an error, sorry.') // TODO: Make a better error message for discord users
-                } else guild.ownerID.send(config.texts.resetDatabaseGuild) // TODO: Has to be tested
+                } else message.guild.owner.send(config.texts.resetDatabaseGuild)
+            }
+            // Check if Voyager role is saved in database
+            else if (!dbGuild.data.role_id) {
+                // Update 
+                controllerGuild.put(dbGuild.data._id, { role_id: voyagerRoleId })
+
+                // Check for error in dbGuild
+                if ('err' in dbGuild) {
+                    echo.error(`Creating Guild. Code ${dbGuild.code}.`)
+                    echo.error(dbGuild.err)
+                    return message.channel.send('There was an error, sorry.') // TODO: Make a better error message for discord users
+                }
             }
         }
 

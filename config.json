@@ -1,10 +1,56 @@
 {
     "voyager": {
         "prefix": "<@!804537849747734578>",
-        "client_id": "804537849747734578",
-        "permissions": {
-            "defaultInt": 68608,
-            "unnecessary": ["PRIORITY_SPEAKER", "STREAM", "CONNECT", "SPEAK", "USE_VAD"]
+        "client_id": "804537849747734578"
+    },
+    "permissions": {
+        "default": [
+            "VIEW_CHANNEL",
+            "SEND_MESSAGES",
+            "EMBED_LINKS",
+            "ATTACH_FILES",
+            "READ_MESSAGE_HISTORY",
+            "MENTION_EVERYONE",
+            "USE_EXTERNAL_EMOJIS",
+            "ADD_REACTIONS"
+        ],
+        "unnecessary": [
+            "PRIORITY_SPEAKER",
+            "STREAM",
+            "CONNECT",
+            "SPEAK",
+            "USE_VAD"
+        ]
+    },
+    "commands": {
+        "set": {
+            "channels": [
+                "reddit"
+            ],
+            "roles": {
+                "visual_guides": [
+                    "visual guides",
+                    "vg"
+                ],
+                "arcane_labyrinth": [
+                    "lab",
+                    "arcane labyrinth",
+                    "labyrinth"
+                ],
+                "dismal_maze": [
+                    "dismal maze",
+                    "maze",
+                    "dismal"
+                ],
+                "redemption_codes": [
+                    "codes",
+                    "redemption codes"
+                ],
+                "map_guides": [
+                    "map guides",
+                    "maps"
+                ]
+            }
         }
     },
     "colors": {
