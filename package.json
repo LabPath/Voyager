@@ -2,8 +2,8 @@
   "name": "voyager",
   "version": "1.0.0",
   "description": "Lab Path Discord Bot",
-  "main": "main.js",
   "scripts": {
+    "prod": "node main.js",
     "dev": "nodemon"
   },
   "repository": {
