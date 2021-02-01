@@ -27,11 +27,11 @@ module.exports = {
             return message.channel.send(config.texts.wrongChannel)
 
         // Add Developers to Guild
-        dbGuild = await controllerGuild.put(dbGuild.data._id, { $addToSet: { developers: { $each: helper.getIdFromMention(args) } } }) // TODO: Generate pretty embed
+        dbGuild = await controllerGuild.put(dbGuild.data._id, { $addToSet: { developers: { $each: helper.getIdFromMention(args) } } })
         if ('err' in dbGuild) {
             echo.error(`Updating Guild. Code ${dbGuild.code}.`)
             echo.error(dbGuild.err)
-            return message.channel.send('There was an error, sorry.') // TODO: Make a better error message for discord users
-        }
+            message.channel.send(config.texts.generalError)
+        } else message.channel.send(`${args} is now one of my masters as well. Got it!`)
     }
 }
