@@ -1,5 +1,6 @@
 // Require: Libs
 const helper = require('../lib/helper')
+const echo = require('../lib/echo')
 
 // Require: Files
 const config = require('../config.json')
@@ -33,17 +34,23 @@ module.exports = {
             case 'channel':
                 if (args[2]) dbGuild = await setChannel(args[1], args[2])
                 else dbGuild = await setChannel(args[1], message.channel.id, dbGuild)
-                break
+                // Check if error in dbGuild
+                if ('err' in dbGuild) {
+                    echo.error(`Updating Guild. Code ${dbGuild.code}.`)
+                    echo.error(dbGuild.err)
+                    return message.channel.send(config.texts.generalError)
+                } else {
+                    if (args[2]) return message.channel.send(`Set ${helper.getChannelAsMentionFromId(args[2])} as a \`${args[1]}\` channel.`)
+                    else return message.channel.send(`Set ${helper.getChannelAsMentionFromId(message.channel.id)} as a \`${args[1]}\` channel.`)
+                }
             case 'role':
                 dbGuild = await setRole(args[1], args[2])
-                break
-        }
-
-        // Check if error in dbGuild
-        if ('err' in dbGuild) {
-            echo.error(`Updating Guild. Code ${dbGuild.code}.`)
-            echo.error(dbGuild.err)
-            return message.channel.send('There was an error, sorry.') // TODO: Make a better error message for discord users
+                // Check if error in dbGuild
+                if ('err' in dbGuild) {
+                    echo.error(`Updating Guild. Code ${dbGuild.code}.`)
+                    echo.error(dbGuild.err)
+                    return message.channel.send(config.texts.generalError)
+                } else return message.channel.send(`Set ${args[2]} as a \`${args[1]}\` role.`)
         }
     }
 }

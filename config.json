@@ -57,6 +57,7 @@
         "blue": "3e8ed4"
     },
     "texts": {
+        "generalError": "Sorry, but something did not go as planned. Please let my creators know!",
         "userLacksPerms": "You lack permissions!",
         "wrongChannel": "I cannot do that here!",
         "botLacksPerms": "I don't have enough permissions to do that! Click here to grant me the necessary permissions:",

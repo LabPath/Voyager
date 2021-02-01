@@ -51,17 +51,6 @@ client.on('guildCreate', async function (guild) {
     // Push owner of guild
     arrayDevelopers.push(guild.ownerID)
 
-    // TODO: guild.members.cache does not show every user! And I'm not entirely sure why, but it probably has to do with "privileged intents". Which basically means this doesn't work, as the bot cannot find all admin members.
-    // Push members with Admin rights as well
-    // console.log(guild.members.cache)
-    /* guild.roles.cache.each((role) => {
-        if (role.permissions.bitfield == 8) {
-            guild.members.cache.each((member) => {
-                if (member._roles.includes(role.id) && !arrayDevelopers.includes(member.id)) arrayDevelopers.push(member.id)
-            })
-        }
-    }) */
-
     // Save Guild to database
     await controllerGuild.post({ guild_id: guild.id, developers: arrayDevelopers })
 })
@@ -116,7 +105,7 @@ client.on('message', async function (message) {
                 if ('err' in dbGuild) {
                     echo.error(`Creating Guild. Code ${dbGuild.code}.`)
                     echo.error(dbGuild.err)
-                    return message.channel.send('There was an error, sorry.') // TODO: Make a better error message for discord users
+                    return message.channel.send(config.texts.generalError)
                 } else message.guild.owner.send(config.texts.resetDatabaseGuild)
             }
             // Check if Voyager role is saved in database
@@ -128,7 +117,7 @@ client.on('message', async function (message) {
                 if ('err' in dbGuild) {
                     echo.error(`Creating Guild. Code ${dbGuild.code}.`)
                     echo.error(dbGuild.err)
-                    return message.channel.send('There was an error, sorry.') // TODO: Make a better error message for discord users
+                    return message.channel.send(config.texts.generalError)
                 }
             }
         }
