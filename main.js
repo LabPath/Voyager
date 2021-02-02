@@ -41,6 +41,34 @@ client.once('ready', async function () {
 
     // Run a subreddit check every 30 mins
     setInterval(() => { helper.checkSubreddits(client) }, config.reddit.lab_path.checkInterval)
+
+    // Get database Guilds
+    let dbGuilds = await controllerGuild.get()
+    if ('err' in dbGuilds) {
+        echo.error(`Getting Guild. Code ${dbGuilds.code}.`)
+        echo.error(dbGuilds.err)
+    }
+
+    // Cache reaction messages if dbGuilds[i] has a roles channel
+    for (i of dbGuilds.data) if (i.channels.roles)
+        await client.channels.cache
+            .get(i.channels.roles).messages.fetch(i.message_reaction_id)
+            .catch(async err => { if (err.message.includes('Unknown')) await controllerGuild.put(i._id, { message_reaction_id: null }) })
+
+    // Events only fire whenever anything has been done in the server.
+    // This could be posting a message, reacting to a message other than the role embed, or reacting twice to a single emoji on the role embed.
+    // Event messageReactionAdd
+    client.on('messageReactionAdd', async function (reaction, user) {
+        // Check for bot as author
+        if (user.id != config.voyager.client_id)
+            await helper.manageRolesByReacting(reaction, user, 'add')
+    })
+    // Event messageReactionRemove
+    client.on('messageReactionRemove', async function (reaction, user) {
+        // Check for bot as author
+        if (user.id != config.voyager.client_id)
+            await helper.manageRolesByReacting(reaction, user, 'remove')
+    })
 })
 
 // First time entering a Guild
@@ -51,8 +79,11 @@ client.on('guildCreate', async function (guild) {
     // Push owner of guild
     arrayDevelopers.push(guild.ownerID)
 
+    // Check if a guild already exists
+    const dbGuild = await controllerGuild.getOne({ guild_id: guild.id })
+
     // Save Guild to database
-    await controllerGuild.post({ guild_id: guild.id, developers: arrayDevelopers })
+    if (dbGuild.code == 404) await controllerGuild.post({ guild_id: guild.id, developers: arrayDevelopers })
 })
 
 // Leaving a guild
@@ -62,6 +93,15 @@ client.on('guildDelete', async function (guild) {
 
     // Remove guild from Database
     if (dbGuild.code != 404 || !'err' in dbGuild) {
+        // Remove reaction embed
+        if (dbGuild.data.message_reaction_id) {
+            const msg = await client.channels.cache
+                .get(dbGuild.data.channels.roles).messages.fetch(dbGuild.data.message_reaction_id)
+                .catch(async err => { console.log(err) })
+            msg.delete()
+        }
+
+        // Delete dbGuild from database
         await controllerGuild.delete(dbGuild.data._id)
         echo.info(`Left Guild with ID ${dbGuild.data._id}.`)
     }
@@ -71,7 +111,7 @@ client.on('guildDelete', async function (guild) {
 client.on('message', async function (message) {
     // console.log(message.content)
     // Variables
-    const voyagerRoleId = message.guild.roles.cache.find(role => role.name == "Voyager" && role.managed == true).id
+    const voyagerRoleId = helper.getVoyagerRoleId(message.guild)
 
     // If message is only a bot ping
     if (message.content == config.voyager.prefix) return message.channel.send(`Use \`@Voyager help\` for a list of commands.`)

@@ -1,6 +1,6 @@
 # Voyager <!-- omit in toc -->
 Custom made Discord bot designed to help the Lab Path community.
-<!-- [Invite me!](https://discord.com/oauth2/authorize?client_id=804537849747734578&scope=bot&permissions=511040) -->
+<!-- [Invite me!](https://discord.com/oauth2/authorize?client_id=804537849747734578&scope=bot&permissions=519232) -->
 
 # Table of contents <!-- omit in toc --> 
 - [Set-up](#set-up)
