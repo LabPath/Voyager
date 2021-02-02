@@ -7,6 +7,7 @@
         "default": [
             "VIEW_CHANNEL",
             "SEND_MESSAGES",
+            "MANAGE_MESSAGES",
             "EMBED_LINKS",
             "ATTACH_FILES",
             "READ_MESSAGE_HISTORY",
@@ -25,7 +26,8 @@
     "commands": {
         "set": {
             "channels": [
-                "reddit"
+                "reddit",
+                "roles"
             ],
             "roles": {
                 "visual_guides": [
@@ -35,23 +37,29 @@
                 "arcane_labyrinth": [
                     "lab",
                     "arcane labyrinth",
-                    "labyrinth"
+                    "labyrinth",
+                    "al"
                 ],
                 "dismal_maze": [
                     "dismal maze",
                     "maze",
-                    "dismal"
+                    "dismal",
+                    "dm"
                 ],
                 "redemption_codes": [
                     "codes",
-                    "redemption codes"
+                    "redemption codes",
+                    "rc"
                 ],
                 "map_guides": [
                     "map guides",
-                    "maps"
+                    "mg"
                 ]
             }
         }
+    },
+    "timings": {
+        "msgDelete": 5000
     },
     "colors": {
         "blue": "3e8ed4"
