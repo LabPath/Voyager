@@ -31,6 +31,8 @@ for (const file of commandFiles) {
 // console.log(client.commands)
 // console.log(alternatives)
 
+// TODO: Check for .env file
+
 // Login with Token
 client.login(process.env.VOYAGER_TOKEN)
 

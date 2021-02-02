@@ -66,7 +66,7 @@ module.exports = {
                             const msg = await message.client.channels.cache
                                 .get(dbGuild.data.channels.roles).messages.fetch(dbGuild.data.message_reaction_id)
                                 .catch(async err => { if (err.message.includes('Unknown')) return dbGuild = await controllerGuild.put(dbGuild.data._id, { message_reaction_id: null }) })
-                            msg.delete()
+                            msg.delete() // TODO: This shouldnt run if a catch is caught
                         }
 
                         // Create new
