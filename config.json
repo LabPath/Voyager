@@ -70,7 +70,7 @@
     "reddit": {
         "lab_path": {
             "checkInterval": 900000,
-            "postFlair": "Arcane Labyrinth"
+            "postFlairs": ["Arcane Labyrinth", "Dismal Maze"]
         }
     }
 }
