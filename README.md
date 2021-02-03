@@ -1,6 +1,5 @@
 # Voyager <!-- omit in toc -->
-Custom made Discord bot designed to help the Lab Path community.
-<!-- [Invite me!](https://discord.com/oauth2/authorize?client_id=804537849747734578&scope=bot&permissions=519232) -->
+Custom made Discord bot designed to help the Lab Path community. Invite [me](https://discord.com/oauth2/authorize?client_id=804537849747734578&scope=bot&permissions=519232) (or my brother [dev](https://discord.com/oauth2/authorize?client_id=806532302335115335&scope=bot&permissions=519232))!
 
 # Table of contents <!-- omit in toc --> 
 - [Set-up](#set-up)
@@ -21,7 +20,9 @@ Custom made Discord bot designed to help the Lab Path community.
 5. Use `Ctrl + C` to stop the bot.
 
 # Development
-Do not commit directly to `master`, please create a Branch first (with a suggestive name based on your changes) and then ask for a merge.
+In order to have the main bot running while developing new commands, there are two different bots (each with their own `token` and `Client ID`): one for Production and for Development. Which you want to be using has to be defined in the [`.env`](#env) file.
+
+**Do not commit directly to `master`**, please create a Branch first (with a suggestive name based on your changes) and choose a reviewer to take a look at it. If changes are approved, feel free to `Squash and Merge`!
 
 # Documentation
 * [Discord Developer portal](https://discord.com/developers/applications/804537849747734578/bot)
@@ -32,36 +33,40 @@ Do not commit directly to `master`, please create a Branch first (with a suggest
 In order to use a command, you'll need to type the prefix of the bot and then the command. For example: `@Voyager ping`
 
 | Command | Description    |
-| :-----: | :------------- |
+| :------ | :------------- |
 | `ping`  | Pings the bot. |
 
 # `.env`
 The environment file has various variables that Voyager uses:
 
-|    Variable     | Description                                                                                                            |
-| :-------------: | :--------------------------------------------------------------------------------------------------------------------- |
-| `VOYAGER_TOKEN` | The Token given by Discord. You can get it [here](https://discord.com/developers/applications/804537849747734578/bot). |
-|    `DB_USER`    | Database user name.                                                                                                    |
-|  `DB_PASSWORD`  | Database password.                                                                                                     |
-|    `DB_NAME`    | Database name.                                                                                                         |
+| Variable            | Description                                                                                                                |
+| :------------------ | :------------------------------------------------------------------------------------------------------------------------- |
+| `VOYAGER_TOKEN`     | The Token given by Discord. You can get it [here](https://discord.com/developers/applications/804537849747734578/bot).     |
+| `VOYAGER_CLIENT_ID` | The Client ID given by Discord. You can get it [here](https://discord.com/developers/applications/804537849747734578/bot). |
+| `VOYAGER_PREFIX`    | The bot prefix.                                                                                                            |
+| `DB_USER`           | Database user name.                                                                                                        |
+| `DB_PASSWORD`       | Database password.                                                                                                         |
+| `DB_NAME`           | Database name.                                                                                                             |
 
 Example `.env` file:
 ```
 VOYAGER_TOKEN=KLJAGN876WQ34M98UWSEF9O7J8WYM3RMY8O9SHEF
-DB_USER=db_username
-DB_PASSWORD=db_password
-DB_NAME=db_name
+VOYAGER_CLIENT_ID=123456789456123
+VOYAGER_PREFIX=<@!123456789456123>
+VOYAGER_DB_USER=db_username
+VOYAGER_DB_PASSWORD=db_password
+VOYAGER_DB_NAME=db_name
 ```
 
 # Directories
 Voyager has various directories, each with their respective purpose:
 
-|   Directory    | Description                                                                                                                                             |
-| :------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
-|   `commands`   | A collection of `.js` files that each represent one command.                                                                                            |
-|   `database`   | A collection of folders and `.js` files that are anything database related.                                                                             |
-|     `lib`      | A collection of `.js` files whose purpose is to have functions available to main files. These files will always export a function that returns a value. |
-|    `utils`     | A folder with folders for any type of files without **code**.                                                                                           |
+| Directory      | Description                                                                                                                                             |
+| :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `commands`     | A collection of `.js` files that each represent one command.                                                                                            |
+| `database`     | A collection of folders and `.js` files that are anything database related.                                                                             |
+| `lib`          | A collection of `.js` files whose purpose is to have functions available to main files. These files will always export a function that returns a value. |
+| `utils`        | A folder with folders for any type of files without **code**.                                                                                           |
 | `utils/assets` | A collection of images used throughout the project.                                                                                                     |
 
 # Creating new commands
