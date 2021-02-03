@@ -39,7 +39,6 @@ client.once('ready', async function () {
 
     // Run a subreddit check every 30 mins
     setInterval(() => { helper.checkSubreddits(client) }, config.reddit.lab_path.checkInterval)
-    helper.checkSubreddits(client)
 
     // Get database Guilds
     let dbGuilds = await controllerGuild.get()
