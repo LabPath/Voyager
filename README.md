@@ -1,5 +1,5 @@
 # Voyager <!-- omit in toc -->
-Custom made Discord bot designed to help the Lab Path community. Invite [me](https://discord.com/oauth2/authorize?client_id=804537849747734578&scope=bot&permissions=519232) (or my brother [dev](https://discord.com/oauth2/authorize?client_id=806532302335115335&scope=bot&permissions=519232))!
+Custom made Discord bot designed to help the Lab Path community. <!-- Invite [me](https://discord.com/oauth2/authorize?client_id=804537849747734578&scope=bot&permissions=519232) (or my brother [dev](https://discord.com/oauth2/authorize?client_id=806532302335115335&scope=bot&permissions=519232))! -->
 
 # Table of contents <!-- omit in toc --> 
 - [Set-up](#set-up)
