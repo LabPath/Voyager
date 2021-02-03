@@ -66,7 +66,7 @@ module.exports = {
                             const msg = await message.client.channels.cache
                                 .get(dbGuild.data.channels.roles).messages.fetch(dbGuild.data.message_reaction_id)
                                 .catch(async err => { if (err.message.includes('Unknown')) return dbGuild = await controllerGuild.put(dbGuild.data._id, { message_reaction_id: null }) })
-                            msg.delete() // TODO: This shouldnt run if a catch is caught
+                            msg.delete() // TODO: This shouldn't run if a catch is caught
                         }
 
                         // Create new
@@ -168,11 +168,11 @@ async function setChannel(dbGuild, type, channelId) {
 
 // Saves role ID in database as role
 async function setRole(dbGuild, type, roleId, emojiId) {
-    // Visual Guides: https://www.flaticon.com/free-icon/instructions_831629?term=guide&page=1&position=13&page=1&position=13&related_id=831629&origin=search
+    // Visual Guides: https://www.flaticon.com/free-icon/book_2947998?term=book&page=1&position=86&page=1&position=86&related_id=2947998&origin=search
     // Lab: https://www.flaticon.com/free-icon/hexagon_117772?term=hexagon&page=1&position=26&page=1&position=26&related_id=117772&origin=search
     // Dismal: https://www.flaticon.com/free-icon/hexagon_117772?term=hexagon&page=1&position=26&page=1&position=26&related_id=117772&origin=search
-    // Codes: https://www.flaticon.com/free-icon/coupon_3987681?term=coupon&page=1&position=85&page=1&position=85&related_id=3987681&origin=search
-    // Map guides: https://www.flaticon.com/br/icone-gratis/mapa_2893216?term=map&page=1&position=64&page=1&position=64&related_id=2893216&origin=search
+    // Codes: https://www.flaticon.com/free-icon/coupon_2089363?term=coupon&page=1&position=3&page=1&position=3&related_id=2089363&origin=search
+    // Map guides: https://www.flaticon.com/free-icon/place_711170?term=map&page=1&position=73&page=1&position=73&related_id=711170&origin=search
 
     // Variables
     let body = { roles: [] }
