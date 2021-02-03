@@ -43,7 +43,7 @@ client.login(process.env.VOYAGER_TOKEN)
 
 // Start bot
 client.once('ready', async function () {
-    echo.success('Voyager up and running!')
+    echo.success(`${process.env.VOYAGER_DB_NAME} up and running!`)
     echo.info('Running version ' + package.version)
 
     // Run a subreddit check every 30 mins
