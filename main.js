@@ -18,7 +18,16 @@ const client = new discord.Client()
 client.commands = new discord.Collection()
 
 // Check for .env File
-if (!fs.existsSync('./.env')) return echo.error('No .env file found! Please create one.')
+if (!fs.existsSync('./.env')) echo.error('No .env file found! Please create one.', true)
+else {
+    // Check for data inside .env file
+    if (!process.env.VOYAGER_TOKEN) echo.error('.env missing VOYAGER_TOKEN!', true)
+    else if (!process.env.VOYAGER_CLIENT_ID) echo.error('.env missing VOYAGER_CLIENT_ID!', true)
+    else if (!process.env.VOYAGER_PREFIX) echo.error('.env missing VOYAGER_PREFIX!', true)
+    else if (!process.env.VOYAGER_DB_USER) echo.error('.env missing VOYAGER_DB_USER!', true)
+    else if (!process.env.VOYAGER_DB_PASSWORD) echo.error('.env missing VOYAGER_DB_PASSWORD!', true)
+    else if (!process.env.VOYAGER_DB_NAME) echo.error('.env missing VOYAGER_DB_NAME!', true)
+}
 
 // Require: Commands
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
@@ -48,23 +57,25 @@ client.once('ready', async function () {
     }
 
     // Cache reaction messages if dbGuilds[i] has a roles channel
-    for (i of dbGuilds.data) if (i.channels.roles)
+    for (i of dbGuilds.data) if (i.channels.roles) {
+        console.log(client.channels.cache)
         await client.channels.cache
             .get(i.channels.roles).messages.fetch(i.message_reaction_id)
             .catch(async err => { if (err.message.includes('Unknown')) await controllerGuild.put(i._id, { message_reaction_id: null }) })
+    }
 
     // Events only fire whenever anything has been done in the server.
     // This could be posting a message, reacting to a message other than the role embed, or reacting twice to a single emoji on the role embed.
     // Event messageReactionAdd
     client.on('messageReactionAdd', async function (reaction, user) {
         // Check for bot as author
-        if (user.id != config.voyager.client_id)
+        if (user.id != process.env.VOYAGER_CLIENT_ID)
             await helper.manageRolesByReacting(reaction, user, 'add')
     })
     // Event messageReactionRemove
     client.on('messageReactionRemove', async function (reaction, user) {
         // Check for bot as author
-        if (user.id != config.voyager.client_id)
+        if (user.id != process.env.VOYAGER_CLIENT_ID)
             await helper.manageRolesByReacting(reaction, user, 'remove')
     })
 })
@@ -95,7 +106,7 @@ client.on('guildDelete', async function (guild) {
         if (dbGuild.data.message_reaction_id) {
             const msg = await client.channels.cache
                 .get(dbGuild.data.channels.roles).messages.fetch(dbGuild.data.message_reaction_id)
-                .catch(async err => { console.log(err) })
+                .catch(async err => { console.log(err) }) // TODO: This catch does not at all work as intended.
             msg.delete()
         }
 
@@ -112,12 +123,12 @@ client.on('message', async function (message) {
     const voyagerRoleId = helper.getVoyagerRoleId(message.guild)
 
     // If message is only a bot ping
-    if (message.content == config.voyager.prefix) return message.channel.send(`Use \`@Voyager help\` for a list of commands.`)
+    if (message.content == process.env.VOYAGER_PREFIX) return message.channel.send(`Use \`@Voyager help\` for a list of commands.`)
 
     // If message starts with bot prefix or Voyager role and message.author is NOT Voyager 
-    if ((message.content.startsWith(config.voyager.prefix) || message.content.startsWith(helper.getRoleAsMentionFromId(voyagerRoleId))) && message.author.id != config.voyager.client_id) {
+    if ((message.content.startsWith(process.env.VOYAGER_PREFIX) || message.content.startsWith(helper.getRoleAsMentionFromId(voyagerRoleId))) && message.author.id != process.env.VOYAGER_CLIENT_ID) {
         // Variables
-        const args = message.content.slice(config.voyager.prefix.length).trim().split(/ +/)
+        const args = message.content.slice(process.env.VOYAGER_PREFIX.length).trim().split(/ +/)
         let commandInput = args.shift().toLowerCase()
         // console.log(args)
         // console.log(command)

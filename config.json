@@ -1,8 +1,4 @@
 {
-    "voyager": {
-        "prefix": "<@!804537849747734578>",
-        "client_id": "804537849747734578"
-    },
     "permissions": {
         "default": [
             "VIEW_CHANNEL",
