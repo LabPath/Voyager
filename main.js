@@ -16,7 +16,9 @@ const helper = require('./lib/helper')
 // Variables
 const client = new discord.Client()
 client.commands = new discord.Collection()
-let alternatives = {}
+
+// Check for .env File
+if (!fs.existsSync('./.env')) return echo.error('No .env file found! Please create one.')
 
 // Require: Commands
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
@@ -24,14 +26,8 @@ for (const file of commandFiles) {
     // Save commands
     const command = require('./commands/' + file)
     client.commands.set(command.name, command)
-
-    // Custom long names
-    alternatives[command.name] = command.alternatives
 }
 // console.log(client.commands)
-// console.log(alternatives)
-
-// TODO: Check for .env file
 
 // Login with Token
 client.login(process.env.VOYAGER_TOKEN)
@@ -43,6 +39,7 @@ client.once('ready', async function () {
 
     // Run a subreddit check every 30 mins
     setInterval(() => { helper.checkSubreddits(client) }, config.reddit.lab_path.checkInterval)
+    helper.checkSubreddits(client)
 
     // Get database Guilds
     let dbGuilds = await controllerGuild.get()
