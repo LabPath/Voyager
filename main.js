@@ -17,7 +17,7 @@ const helper = require('./lib/helper')
 const client = new discord.Client()
 client.commands = new discord.Collection()
 
-// Check for .env File
+// Check for .env file
 if (!fs.existsSync('./.env')) echo.error('No .env file found! Please create one.', true)
 else {
     // Check for data inside .env file
@@ -46,8 +46,18 @@ client.once('ready', async function () {
     echo.success(`${process.env.VOYAGER_DB_NAME} up and running!`)
     echo.info('Running version ' + package.version)
 
+    // Set activity
+    await client.user.setActivity(`v${package.version}`, { type: 'PLAYING' })
+
     // Run a subreddit check every 30 mins
-    setInterval(() => { helper.checkSubreddits(client) }, config.reddit.lab_path.checkInterval)
+    setInterval(() => {
+        // Change activity
+        if (client.user.presence.activities[0].type == 'PLAYING') client.user.setActivity('r/Lab_path', { type: 'WATCHING' })
+        else if (client.user.presence.activities[0].type == 'WATCHING') client.user.setActivity(`v${package.version}`, { type: 'PLAYING' })
+
+        // Check for latest subreddit post
+        helper.checkSubreddits(client)
+    }, config.reddit.lab_path.checkInterval)
 
     // Get database Guilds
     let dbGuilds = await controllerGuild.get()
@@ -58,7 +68,6 @@ client.once('ready', async function () {
 
     // Cache reaction messages if dbGuilds[i] has a roles channel
     for (i of dbGuilds.data) if (i.channels.roles) {
-        console.log(client.channels.cache)
         await client.channels.cache
             .get(i.channels.roles).messages.fetch(i.message_reaction_id)
             .catch(async err => { if (err.message.includes('Unknown')) await controllerGuild.put(i._id, { message_reaction_id: null }) })
