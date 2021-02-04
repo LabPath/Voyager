@@ -135,9 +135,6 @@ async function removeRole(dbGuild, type) {
     // Recreate roles array without Role
     for (i of dbGuild.data.roles) if (!i[type]) body.roles.push(i)
 
-    console.log(dbGuild.data.roles)
-    console.log(body)
-
     // Return
     return await controllerGuild.put(dbGuild.data._id, body)
 }
