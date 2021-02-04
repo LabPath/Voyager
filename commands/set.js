@@ -75,7 +75,7 @@ module.exports = {
                                 // React with emojis
                                 for (i of dbGuild.data.roles)
                                     for (j in i)
-                                        await msg.react(helper.getEmojiAsMentionFromId(i[j].emoji))
+                                        msg.react(helper.getEmojiAsMentionFromId(i[j].emoji))
 
                                 // Save msg.id to database
                                 dbGuild = await controllerGuild.put(dbGuild.data._id, { message_reaction_id: msg.id })
@@ -157,7 +157,7 @@ function checkCommandArguments(args) {
 // Saves channel ID in database as channel
 async function setChannel(dbGuild, type, channelId) {
     // Variables
-    let body = { channels: {} }
+    let body = { channels: dbGuild.data.channels }
 
     // Set channel ID
     body.channels[type] = channelId
