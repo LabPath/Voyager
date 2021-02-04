@@ -147,7 +147,7 @@ client.on('message', async function (message) {
         if (!command) return
 
         // Variables
-        dbGuild = null
+        let dbGuild = null
 
         // Check if command needs dbGuild
         if (command.needsDatabaseGuild || command.devOnly) {
