@@ -65,7 +65,8 @@
         "userLacksPerms": "You lack permissions!",
         "wrongChannel": "I cannot do that here!",
         "botLacksPerms": "I don't have enough permissions to do that! Click here to grant me the necessary permissions:",
-        "resetDatabaseGuild": "Something has gone wrong on my side, I had to reset some settings. Please add developers (aka people you trust) to the bot again with the `dev` command. Sorry for the hassle!"
+        "resetDatabaseGuild": "Something has gone wrong on my side, I had to reset some settings. Please add developers (aka people you trust) to the bot again with the `dev` command. Sorry for the hassle!",
+        "wrongCommandUsage": "Wrong command usage!"
     },
     "reddit": {
         "lab_path": {
