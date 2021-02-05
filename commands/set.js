@@ -28,7 +28,7 @@ module.exports = {
             return message.channel.send(config.texts.wrongChannel)
         // Check if arguments are correct
         if (!checkCommandArguments(args))
-            return message.channel.send('Wrong command usage!')
+            return message.channel.send(config.texts.wrongCommandUsage)
 
         // Switch statement for type of set
         switch (args[0]) {
