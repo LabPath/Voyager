@@ -81,13 +81,13 @@ const config = require('../config.json')
 // Exports
 module.exports = {
     name: 'commandName',
-	aliases: ['alias1', 'alias2'],
-	permissions: ['PERMISSION1', 'PERMISSION2'],
-	devOnly: false,
+    aliases: ['alias1', 'alias2'],
+    permissions: ['PERMISSION1', 'PERMISSION2'],
+    devOnly: false,
     needsDatabaseGuild: false,
     channelTypes: ['dm', 'text', 'news'],
     execute(message, args, dbGuild) {
-		// Check for Bot permissions
+	// Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)
         if (objectPermissions.necessary.length != 0)
             return message.channel.send(helper.generatePermissionLink(objectPermissions, message))
@@ -98,7 +98,7 @@ module.exports = {
         if (!helper.checkChannelType(message, this.channelTypes))
             return message.channel.send(config.texts.wrongChannel)
 			
-		// Your code here
+	// Your code here
         // Can also be async code. Just put "async" before "execute(message, args)"
     }
 }
