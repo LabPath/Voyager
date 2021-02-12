@@ -49,6 +49,8 @@ client.once('ready', async function () {
     // Set activity
     await client.user.setActivity(`v${package.version}`, { type: 'PLAYING' })
 
+    helper.checkSubreddits(client)
+
     // Run a subreddit check every 30 mins
     setInterval(() => {
         // Change activity
