@@ -78,13 +78,13 @@ client.once('ready', async function () {
     // Event messageReactionAdd
     client.on('messageReactionAdd', async function (reaction, user) {
         // Check for bot as author
-        if (user.id != process.env.VOYAGER_CLIENT_ID)
+        if (user.id != process.env.VOYAGER_CLIENT_ID && reaction.message.channel.type != 'dm')
             await helper.manageRolesByReacting(reaction, user, 'add')
     })
     // Event messageReactionRemove
     client.on('messageReactionRemove', async function (reaction, user) {
         // Check for bot as author
-        if (user.id != process.env.VOYAGER_CLIENT_ID)
+        if (user.id != process.env.VOYAGER_CLIENT_ID && reaction.message.channel.type != 'dm')
             await helper.manageRolesByReacting(reaction, user, 'remove')
     })
 })
@@ -130,28 +130,36 @@ client.on('guildDelete', async function (guild) {
 client.on('message', async function (message) {
     // console.log(message.content)
     // Variables
-    const voyagerRoleId = helper.getVoyagerRoleId(message.guild)
+    let voyagerRoleId = null
+    if (message.guild) voyagerRoleId = helper.getVoyagerRoleId(message.guild)
 
     // If message is only a bot ping
     if (message.content == process.env.VOYAGER_PREFIX) return message.channel.send(`Use \`@Voyager help\` for a list of commands.`)
 
-    // If message starts with bot prefix or Voyager role and message.author is NOT Voyager 
-    if ((message.content.startsWith(process.env.VOYAGER_PREFIX) || message.content.startsWith(helper.getRoleAsMentionFromId(voyagerRoleId))) && message.author.id != process.env.VOYAGER_CLIENT_ID) {
+    // If message.author is NOT Voyager && (in DMs || (starts with prefix || starts with Voyager role mention))
+    if (message.author.id != process.env.VOYAGER_CLIENT_ID && (message.channel.type == 'dm' || (message.content.startsWith(process.env.VOYAGER_PREFIX) || message.content.startsWith(helper.getRoleAsMentionFromId(voyagerRoleId))))) {
         // Variables
-        const args = message.content.slice(process.env.VOYAGER_PREFIX.length).trim().split(/ +/)
-        let commandInput = args.shift().toLowerCase()
+        let args = message.content.trim().split(/ +/)
+        let commandInput = null
+        let dbGuild = null
+
+        // Remove bot prefix if present
+        if (message.content.includes(process.env.VOYAGER_PREFIX)) {
+            args.shift()
+            commandInput = args.shift().toLowerCase()
+        } else commandInput = args.shift().toLowerCase()
+        // console.log(args)
+        // console.log(commandInput)
 
         // Check if command exists (with aliases)
         const command = client.commands.get(commandInput) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandInput))
-        // console.log(args)
-        // console.log(command)
         if (!command) return
-
-        // Variables
-        let dbGuild = null
 
         // Check if command needs dbGuild
         if (command.needsDatabaseGuild || command.devOnly) {
+            // Check if in DMs
+            if (message.channel.type == 'dm') return message.channel.send(config.texts.wrongChannel)
+
             // Get Current Guild
             dbGuild = await controllerGuild.getOne({ guild_id: message.guild.id })
 
@@ -183,6 +191,6 @@ client.on('message', async function (message) {
 
         // Try to execute it
         try { command.execute(message, args, dbGuild) }
-        catch (err) { echo.error(err) }
+        catch (err) { console.log(err) }
     }
 })

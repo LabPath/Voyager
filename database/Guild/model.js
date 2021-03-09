@@ -1,7 +1,7 @@
 // Require: Packages
 const mongoose = require('mongoose')
 
-// Model: Nouns
+// Model
 const Guild = mongoose.model('Guilds', new mongoose.Schema({
     guild_id: { type: String, require: true },
     role_id: String,

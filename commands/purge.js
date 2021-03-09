@@ -11,7 +11,7 @@ module.exports = {
     userPermissions: ['MANAGE_MESSAGES'],
     devOnly: false,
     needsDatabaseGuild: false,
-    channelTypes: ['dm', 'text', 'news'],
+    channelTypes: ['text', 'news'],
     execute(message, args, dbGuild) {
         // Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)

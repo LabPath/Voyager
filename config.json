@@ -52,13 +52,27 @@
                     "mg"
                 ]
             }
+        },
+        "user": {
+            "questions": [
+                {
+                    "question": "What is your in-game UID?",
+                    "type": "input"
+                },
+                {
+                    "question": "Do you want me to automatically attempt to redeem new codes whenever there's a new one available?",
+                    "type": "bool"
+                }
+            ]
         }
     },
     "timings": {
         "msgDelete": 5000
     },
     "colors": {
-        "blue": "3e8ed4"
+        "blue": "3e8ed4",
+        "success": "38b23a",
+        "error": "cc0000"
     },
     "texts": {
         "generalError": "Sorry, but something did not go as planned. Please let my creators know!",
@@ -66,7 +80,11 @@
         "wrongChannel": "I cannot do that here!",
         "botLacksPerms": "I don't have enough permissions to do that! Click here to grant me the necessary permissions:",
         "resetDatabaseGuild": "Something has gone wrong on my side, I had to reset some settings. Please add developers (aka people you trust) to the bot again with the `dev` command. Sorry for the hassle!",
-        "wrongCommandUsage": "Wrong command usage!"
+        "wrongCommandUsage": "Wrong command usage!",
+        "outOfTime": "The operation has been cancelled due to inactivity.",
+        "user": {
+            "successCreatingNew": "Successfully saved the following:"
+        }
     },
     "reddit": {
         "lab_path": {
