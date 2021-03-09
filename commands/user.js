@@ -43,7 +43,6 @@ module.exports = {
             // Ask if update or delete
             showUser(message, user)
         }
-        // TODO: Somehow get a thing to update info
     }
 }
 
@@ -61,10 +60,8 @@ async function createUser(message, user) {
 
     // Questions
     body = await askUID(message, body) // Ask for in-game UID
+    if (!body) return
     body = await askNotify(message, body) // Ask for notify
-
-    // Send message
-    // message.channel.send('Alright!')
 
     // Variables
     let description = `\`\`\`\nUID: ${body.afk.afk_uids}\nNotify me: ${body.afk.notify}\`\`\``
@@ -106,7 +103,7 @@ async function showUser(message, user) {
     message.channel.send(embeds.simple(config.colors.success, config.texts.user.successFound, description)).then((msg) => {
         msg.react('🔄')
         msg.react('❌')
-        msg.awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] })
+        msg.awaitReactions(filter, { max: 1, time: 10000, errors: ['time'] })
             .then(async collected => {
                 // Update
                 if (collected.first()._emoji.name == '🔄') createUser(message, user)
@@ -134,7 +131,7 @@ function deleteUser(message, user) {
 
     // Ask if user is sure
     message.channel.send('Are you sure you want to delete your info? (y/n)').then(() => {
-        message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'] })
+        message.channel.awaitMessages(filter, { max: 1, time: 20000, errors: ['time'] })
             .then(async collected => {
                 // Check answer
                 if (['yes', 'y'].includes(collected.first().content.trim().toLowerCase())) {
@@ -152,6 +149,7 @@ function deleteUser(message, user) {
             })
             .catch(collected => {
                 message.channel.send(config.texts.outOfTime)
+                return false
             })
     })
 }
@@ -161,26 +159,31 @@ async function askUID(message, body) {
     // Filter
     const filter = response => {
         if (!response.author.bot) {
-            if (response.content.match(/^\d+$/g)) return true
-            else {
-                message.channel.send('Invalid UID. Please try again.')
-                return false
+            // Iterate over UIDs
+            for (i of response.content.trim().split(/ +/)) {
+                // If they don't match return false
+                if (!i.match(/^\d+$/g)) {
+                    message.channel.send('Invalid UID. Please try again.')
+                    return false
+                }
             }
+            return true
         }
     }
 
     // Ask user
     return await message.channel.send(config.commands.user.questions[0].question).then(() => {
-        return message.channel.awaitMessages(filter, { max: 1, time: 30000, errors: ['time'] })
+        return message.channel.awaitMessages(filter, { max: 1, time: 60000, errors: ['time'] })
             .then(collected => {
                 // Save to body
-                body.afk.afk_uids = collected.first().content
+                body.afk.afk_uids = collected.first().content.trim().split(/ +/)
 
                 // Return
                 return body
             })
             .catch(collected => {
                 message.channel.send(config.texts.outOfTime)
+                return false
             })
     })
 }
@@ -197,7 +200,7 @@ async function askNotify(message, body) {
     return await message.channel.send(config.commands.user.questions[1].question).then((msg) => {
         msg.react('👍')
         msg.react('👎')
-        return msg.awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] })
+        return msg.awaitReactions(filter, { max: 1, time: 20000, errors: ['time'] })
             .then(async collected => {
                 // Save to body
                 if (collected.first()._emoji.name == '👍') body.afk.notify = true
@@ -207,6 +210,7 @@ async function askNotify(message, body) {
             })
             .catch(collected => {
                 msg.channel.send(config.texts.outOfTime)
+                return false
             })
     })
 }

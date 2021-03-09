@@ -56,7 +56,7 @@
         "user": {
             "questions": [
                 {
-                    "question": "What is your in-game UID?",
+                    "question": "What is your in-game UID? If you have various accounts **with different emails**, then separate them with a space. Accounts with the same email are taken in consideration by default already.",
                     "type": "input"
                 },
                 {
