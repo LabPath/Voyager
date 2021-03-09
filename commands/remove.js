@@ -1,7 +1,6 @@
 // Require: Libs
 const helper = require('../lib/helper')
 const echo = require('../lib/echo')
-const embeds = require('../lib/embeds')
 
 // Require: Files
 const config = require('../config.json')
@@ -102,7 +101,7 @@ function checkCommandArguments(args) {
     }
 }
 
-// Saves channel ID in database as channel
+// Remove channel ID in database as channel
 async function removeChannel(message, dbGuild, type) {
     // Variables
     let body = { channels: dbGuild.data.channels }
@@ -112,7 +111,7 @@ async function removeChannel(message, dbGuild, type) {
         const msg = await message.client.channels.cache
             .get(dbGuild.data.channels.roles).messages
             .fetch('dbGuild.data.message_reaction_id')
-            .catch(err => { console.log(err) })
+            .catch(err => { console.log(err) }) // TODO: Catch doesn't work... Delete role message and run rem channel roles
         if (msg) msg.delete()
         else message.channel.send('Could not find Reaction Embed Message. Did not delete it.')
 
@@ -127,7 +126,7 @@ async function removeChannel(message, dbGuild, type) {
     return await controllerGuild.put(dbGuild.data._id, body)
 }
 
-// Saves role ID in database as role
+// Remove role ID in database as role
 async function removeRole(dbGuild, type) {
     // Variables
     let body = { roles: [] }

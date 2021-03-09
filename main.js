@@ -91,17 +91,18 @@ client.once('ready', async function () {
 
 // First time entering a Guild
 client.on('guildCreate', async function (guild) {
-    // Variables
-    arrayDevelopers = []
-
-    // Push owner of guild
-    arrayDevelopers.push(guild.ownerID)
-
     // Check if a guild already exists
     const dbGuild = await controllerGuild.getOne({ guild_id: guild.id })
+    if (dbGuild.code == 404) {
+        // Variables
+        arrayDevelopers = []
 
-    // Save Guild to database
-    if (dbGuild.code == 404) await controllerGuild.post({ guild_id: guild.id, developers: arrayDevelopers })
+        // Push owner of guild
+        arrayDevelopers.push(guild.ownerID)
+
+        // Save Guild to database
+        await controllerGuild.post({ guild_id: guild.id, developers: arrayDevelopers })
+    }
 })
 
 // Leaving a guild
@@ -139,11 +140,11 @@ client.on('message', async function (message) {
         // Variables
         const args = message.content.slice(process.env.VOYAGER_PREFIX.length).trim().split(/ +/)
         let commandInput = args.shift().toLowerCase()
-        // console.log(args)
-        // console.log(command)
 
         // Check if command exists (with aliases)
         const command = client.commands.get(commandInput) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandInput))
+        // console.log(args)
+        // console.log(command)
         if (!command) return
 
         // Variables
@@ -173,7 +174,7 @@ client.on('message', async function (message) {
 
                 // Check for error in dbGuild
                 if ('err' in dbGuild) {
-                    echo.error(`Creating Guild. Code ${dbGuild.code}.`)
+                    echo.error(`Updating Guild. Code ${dbGuild.code}.`)
                     echo.error(dbGuild.err)
                     return message.channel.send(config.texts.generalError)
                 }

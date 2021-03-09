@@ -24,7 +24,7 @@ module.exports = {
         if (!helper.checkChannelType(message, this.channelTypes))
             return message.channel.send(config.texts.wrongChannel)
         // Check if user has permissions
-        if (!helper.checkUserPermissions(message.channel.guild.members.cache.get(message.author.id), this.channelTypes))
+        if (!helper.checkUserPermissions(message.channel.guild.members.cache.get(message.author.id), this.userPermissions))
             return message.channel.send(config.texts.userLacksPerms)
         // Check if arguments are correct
         if (!checkCommandArguments(args))
