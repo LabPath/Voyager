@@ -28,6 +28,7 @@ module.exports = {
             return message.channel.send(config.texts.wrongCommandUsage)
 
         message.channel.send('oh ye')
+        // TODO: Anyone can redeem and it also tries to redeem on other users
     }
 }
 

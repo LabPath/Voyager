@@ -136,18 +136,12 @@ client.on('message', async function (message) {
     // If message is only a bot ping
     if (message.content == process.env.VOYAGER_PREFIX) return message.channel.send(`Use \`@Voyager help\` for a list of commands.`)
 
-    // If message.author is NOT Voyager && (in DMs || (starts with prefix || starts with Voyager role mention))
-    if (message.author.id != process.env.VOYAGER_CLIENT_ID && (message.channel.type == 'dm' || (message.content.startsWith(process.env.VOYAGER_PREFIX) || message.content.startsWith(helper.getRoleAsMentionFromId(voyagerRoleId))))) {
+    // If message starts with bot prefix or Voyager role and message.author is NOT Voyager 
+    if (message.author.id != process.env.VOYAGER_CLIENT_ID && (message.content.startsWith(process.env.VOYAGER_PREFIX) || message.content.startsWith(helper.getRoleAsMentionFromId(voyagerRoleId)))) {
         // Variables
-        let args = message.content.trim().split(/ +/)
-        let commandInput = null
         let dbGuild = null
-
-        // Remove bot prefix if present
-        if (message.content.includes(process.env.VOYAGER_PREFIX)) {
-            args.shift()
-            commandInput = args.shift().toLowerCase()
-        } else commandInput = args.shift().toLowerCase()
+        const args = message.content.slice(process.env.VOYAGER_PREFIX.length).trim().split(/ +/)
+        let commandInput = args.shift().toLowerCase()
         // console.log(args)
         // console.log(commandInput)
 

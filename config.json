@@ -60,7 +60,7 @@
                     "type": "input"
                 },
                 {
-                    "question": "Do you want me to automatically attempt to redeem new codes whenever there's a new one available?",
+                    "question": "Do you want me to notify you whenever there's a new code available?",
                     "type": "bool"
                 }
             ]
@@ -83,7 +83,10 @@
         "wrongCommandUsage": "Wrong command usage!",
         "outOfTime": "The operation has been cancelled due to inactivity.",
         "user": {
-            "successCreatingNew": "Successfully saved the following:"
+            "successCreatingNew": "Successfully saved the following:",
+            "successUpdating": "Successfully updated your info:",
+            "successFound": "Found the following info about you:",
+            "successDelete": "Successfully deleted your info! Sad to see you go."
         }
     },
     "reddit": {
