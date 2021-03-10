@@ -23,8 +23,13 @@ module.exports = {
         if (this.devOnly && !dbGuild.developers.includes(message.author.id))
             return message.channel.send(config.texts.userLacksPerms)
         // Check if in correct channel type
-        if (!helper.checkChannelType(message, this.channelTypes))
-            return message.channel.send('I can only run this command in DMs.')
+        if (!helper.checkChannelType(message, this.channelTypes)) {
+            message.delete()
+            message.client.users.fetch(message.author.id, false).then((user) => {
+                user.send('Please run `@Voyager user` here, instead of a server.')
+            })
+            return
+        }
 
         // Check if user already exists in DB
         let user = await controllerUser.getOne({ discord_id: message.author.id })
@@ -64,7 +69,7 @@ async function createUser(message, user) {
     body = await askNotify(message, body) // Ask for notify
 
     // Variables
-    let description = `\`\`\`\nUID: ${body.afk.afk_uids}\nNotify me: ${body.afk.notify}\`\`\``
+    let description = `\`\`\`json\nUID: ${body.afk.afk_uids}\nNotify: ${body.afk.notify}\`\`\``
 
     // Check if update or create
     if (user) {
@@ -93,7 +98,7 @@ async function createUser(message, user) {
 // Show user an embed with info and ask to update or delete
 async function showUser(message, user) {
     // Variables
-    let description = `\`\`\`\nUID: ${user.data.afk.afk_uids}\nNotify me: ${user.data.afk.notify}\`\`\`\nDo you want to update or delete it?`
+    let description = `\`\`\`json\nUID: ${user.data.afk.afk_uids}\nNotify: ${user.data.afk.notify}\`\`\`\nDo you want to update or delete it?`
     const filter = (reaction, user) => {
         if (user.id === message.author.id && (reaction.emoji.name === '🔄' || reaction.emoji.name === '❌')) return true
         return false
@@ -172,11 +177,12 @@ async function askUID(message, body) {
     }
 
     // Ask user
-    return await message.channel.send(config.commands.user.questions[0].question).then(() => {
+    return await message.channel.send(config.commands.user.questions[0]).then(() => {
         return message.channel.awaitMessages(filter, { max: 1, time: 60000, errors: ['time'] })
             .then(collected => {
                 // Save to body
                 body.afk.afk_uids = collected.first().content.trim().split(/ +/)
+                body.afk.afk_uids = body.afk.afk_uids.map(Number)
 
                 // Return
                 return body
@@ -197,7 +203,7 @@ async function askNotify(message, body) {
     }
 
     // Ask
-    return await message.channel.send(config.commands.user.questions[1].question).then((msg) => {
+    return await message.channel.send(config.commands.user.questions[1]).then((msg) => {
         msg.react('👍')
         msg.react('👎')
         return msg.awaitReactions(filter, { max: 1, time: 20000, errors: ['time'] })

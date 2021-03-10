@@ -55,15 +55,21 @@
         },
         "user": {
             "questions": [
-                {
-                    "question": "What is your in-game UID? If you have various accounts **with different emails**, then separate them with a space. Accounts with the same email are taken in consideration by default already.",
-                    "type": "input"
-                },
-                {
-                    "question": "Do you want me to notify you whenever there's a new code available?",
-                    "type": "bool"
-                }
+                "What is your in-game UID? If you have various accounts **with different emails**, then separate them with a space. Accounts with the same email are taken in consideration by default already.",
+                "Do you want me to notify you whenever there's a new code available?"
             ]
+        },
+        "redeem": {
+            "questions": [
+                "Enter the verification code sent to your in-game mail within 1 minute."
+            ],
+            "axios": {
+                "logout": "https://cdkey.lilith.com/api/logout?uid=",
+                "sendMail": "https://cdkey.lilith.com/api/send-mail",
+                "verifyCode": "https://cdkey.lilith.com/api/verify-code",
+                "users": "https://cdkey.lilith.com/api/users",
+                "redeem": "https://cdkey.lilith.com/api/cd-key/consume"
+            }
         }
     },
     "timings": {
@@ -87,6 +93,9 @@
             "successUpdating": "Successfully updated your info:",
             "successFound": "Found the following info about you:",
             "successDelete": "Successfully deleted your info! Sad to see you go."
+        },
+        "redeem": {
+            "tooOften": "Lilith says I've been trying too often to redeem codes for you. Please "
         }
     },
     "reddit": {
