@@ -62,14 +62,17 @@
         "redeem": {
             "questions": [
                 "Enter the verification code sent to your in-game mail within 1 minute."
-            ],
-            "axios": {
-                "logout": "https://cdkey.lilith.com/api/logout?uid=",
-                "sendMail": "https://cdkey.lilith.com/api/send-mail",
-                "verifyCode": "https://cdkey.lilith.com/api/verify-code",
-                "users": "https://cdkey.lilith.com/api/users",
-                "redeem": "https://cdkey.lilith.com/api/cd-key/consume"
-            }
+            ]
+        }
+    },
+    "links": {
+        "reddit": "http://www.reddit.com/r/lab_path/new.json?limit=5",
+        "redeem": {
+            "logout": "https://cdkey.lilith.com/api/logout?uid=",
+            "sendMail": "https://cdkey.lilith.com/api/send-mail",
+            "verifyCode": "https://cdkey.lilith.com/api/verify-code",
+            "users": "https://cdkey.lilith.com/api/users",
+            "consume": "https://cdkey.lilith.com/api/cd-key/consume"
         }
     },
     "timings": {

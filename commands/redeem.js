@@ -135,7 +135,7 @@ async function askIfReady(message, i) {
 
 // Logs user out from redemption codes website
 async function logout(message, i) {
-    res = await axios.get(config.commands.redeem.axios.logout + i)
+    res = await axios.get(config.links.redeem.logout + i)
     // Not OK
     if (res.data.info != 'ok') {
         console.log('--- Logout ---')
@@ -154,7 +154,7 @@ async function sendVerificationMail(message, i) {
     }
 
     // Request
-    res = await axios.post(config.commands.redeem.axios.sendMail, body)
+    res = await axios.post(config.links.redeem.sendMail, body)
 
     // Send mail too often
     if (res.data.info == 'err_send_mail_too_often') {
@@ -182,7 +182,7 @@ async function sendVerificationCode(message, i, verificationCode) {
     }
 
     // Request
-    res = await axios.post(config.commands.redeem.axios.verifyCode, body)
+    res = await axios.post(config.links.redeem.verifyCode, body)
 
     // Wrong Verification Code
     if (res.data.info == 'err_wrong_code') {
@@ -210,7 +210,7 @@ async function getUsersUIDs(message, i) {
     }
 
     // Request
-    res = await axios.post(config.commands.redeem.axios.users, body)
+    res = await axios.post(config.links.redeem.users, body)
 
     // Not OK
     if (res.data.info != 'ok') {
@@ -239,7 +239,7 @@ async function redeemCode(user, args) {
         }
 
         // Request
-        res = await axios.post(config.commands.redeem.axios.redeem, body)
+        res = await axios.post(config.links.redeem.consume, body)
 
         // Expired Code
         if (res.data.info == 'err_cdkey_expired') {
