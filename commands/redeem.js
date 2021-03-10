@@ -14,7 +14,8 @@ module.exports = {
     devOnly: false,
     needsDatabaseGuild: false,
     channelTypes: ['dm'],
-    // TODO: Anyone can redeem and it also tries to redeem on other users   
+    // TODO: Anyone can redeem and it also tries to redeem on other users
+    // TODO: Create some sort of counter
     async execute(message, args, dbGuild) {
         // Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)
@@ -57,7 +58,8 @@ module.exports = {
                 let data = null
                 let users = null
 
-                data = await logout(message, i) // Logout first
+                data = await askIfReady(message, i) // Ask if user is ready for sending verification code
+                if (data) data = await logout(message, i) // Logout first
                 if (data) data = await sendVerificationMail(message, i) // Ask for Verification Mail
                 if (data) data = await sendVerificationCode(message, i, data) // Send Verification Code
                 if (data) users = await getUsersUIDs(message, i) // Get alt Accounts
@@ -74,6 +76,9 @@ module.exports = {
 
                 // Check for break_all
                 if (data == 'break_all') break
+
+                // Send message
+                message.channel.send('Done!')
             }
         }
     }
@@ -103,6 +108,26 @@ async function askVerificationCode(message) {
             })
             .catch(collected => {
                 message.channel.send(config.texts.outOfTime)
+                return false
+            })
+    })
+}
+
+// Ask if user is ready for verification code
+async function askIfReady(message, i) {
+    // Filter
+    const filter = (reaction, user) => {
+        if (user.id === message.author.id && reaction.emoji.name === '👍') return true
+        return false
+    }
+
+    // Ask
+    return await message.channel.send(`React when you're ready to receive the verification code for account \`${i}\`.`).then((msg) => {
+        msg.react('👍')
+        return msg.awaitReactions(filter, { max: 1, time: 20000, errors: ['time'] })
+            .then(async collected => { return true })
+            .catch(collected => {
+                msg.channel.send(config.texts.outOfTime)
                 return false
             })
     })
