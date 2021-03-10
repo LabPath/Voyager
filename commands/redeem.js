@@ -14,6 +14,7 @@ module.exports = {
     devOnly: false,
     needsDatabaseGuild: false,
     channelTypes: ['dm'],
+    // TODO: Anyone can redeem and it also tries to redeem on other users   
     async execute(message, args, dbGuild) {
         // Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)
@@ -34,11 +35,9 @@ module.exports = {
         if (!checkCommandArguments(args))
             return message.channel.send(config.texts.wrongCommandUsage)
 
-        // Send message
-        message.channel.send('Working on it...')
-
         // Check if user already exists in DB
         let user = await controllerUser.getOne({ discord_id: message.author.id })
+        // If error
         if ('err' in user) {
             echo.error(`Getting User. Code ${user.code}.`)
             echo.error(user.err)
@@ -63,9 +62,12 @@ module.exports = {
                 if (data) data = await sendVerificationCode(message, i, data) // Send Verification Code
                 if (data) users = await getUsersUIDs(message, i) // Get alt Accounts
 
+                // Send message
+                message.channel.send('Working on it...')
+
                 // Iterate over Users
                 if (users) for (j of users) {
-                    data = await redeemCode(j, args[0])
+                    data = await redeemCode(j, args)
                     if (data == 'break_all') break
                     else message.channel.send(data)
                 }
@@ -73,7 +75,6 @@ module.exports = {
                 // Check for break_all
                 if (data == 'break_all') break
             }
-            // TODO: Anyone can redeem and it also tries to redeem on other users   
         }
     }
 }
@@ -81,8 +82,8 @@ module.exports = {
 /* --- Functions --- */
 // Check if arguments are correct
 function checkCommandArguments(args) {
-    // Check for args[0]
-    if (!args[0]) return false
+    // Check for args
+    if (!args) return false
     else return true
 }
 
@@ -198,34 +199,49 @@ async function getUsersUIDs(message, i) {
 }
 
 // Redeem code for user
-async function redeemCode(user, code) {
+async function redeemCode(user, args) {
     // Variables
-    const body = {
-        type: "cdkey_web",
-        game: "afk",
-        uid: user.uid,
-        cdkey: code
+    let description = `\`\`\`json\n${user.name} (${user.uid}): {\n`
+
+    // Iterate over args (codes)
+    for (i of args) {
+        // Variables
+        const body = {
+            type: "cdkey_web",
+            game: "afk",
+            uid: user.uid,
+            cdkey: i
+        }
+
+        // Request
+        res = await axios.post(config.commands.redeem.axios.redeem, body)
+
+        // Expired Code
+        if (res.data.info == 'err_cdkey_expired') {
+            description += `  "${i}": "Has expired.",\n`
+        }
+        // Already redeemed code
+        else if (res.data.info == 'err_cdkey_batch_error') {
+            description += `  "${i}": "Already claimed.",\n`
+        }
+        // Code invalid
+        else if (res.data.info == 'err_cdkey_record_not_found') {
+            description += `  "${i}": "Invalid code.",\n`
+        }
+        // Not OK
+        else if (res.data.info != 'ok') {
+            console.log('--- Redeem Code ---')
+            console.log(res)
+            message.channel.send(config.texts.generalError)
+            return 'breakAll'
+        }
+        // Success
+        else description += `  "${i}": "Redeemed!",\n`
     }
 
-    // Request
-    res = await axios.post(config.commands.redeem.axios.redeem, body)
-    console.log(res.data)
+    // Add end of code block
+    description += '}```'
 
-    // Expired Code
-    if (res.data.info == 'err_cdkey_expired') {
-        return 'breakAll'
-    }
-    // Already redeemed code
-    else if (res.data.info == 'err_cdkey_batch_error') {
-        return `\`\`\`js\n${user.name}(${user.uid}): Already claimed\`\`\``
-    }
-    // Not OK
-    else if (res.data.info != 'ok') {
-        console.log('--- Redeem Code ---')
-        console.log(res)
-        message.channel.send(config.texts.generalError)
-        return 'breakAll'
-    }
-    // Success
-    else return `\`\`\`js\n${user.name}(${user.uid}): Redeemed\`\`\``
+    // Return description
+    return description
 }
