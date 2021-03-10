@@ -76,6 +76,24 @@ module.exports = {
                         })
                 }
                 break
+            case 'trusted':
+                // Remove Trusted User
+                dbGuild = await controllerGuild.put(dbGuild.data._id, { $pull: { trusted_users: helper.getIdFromMention(args[1]) } })
+                if ('err' in dbGuild) {
+                    echo.error(`Adding trusted user. Code ${dbGuild.code}.`)
+                    echo.error(dbGuild.err)
+                    message.channel.send(config.texts.generalError)
+                } else message.channel.send(`${args[1]} is not part of the Team anymore! Got it.`)
+                break
+            case 'developer':
+                // Remove Developer to Guild
+                dbGuild = await controllerGuild.put(dbGuild.data._id, { $pull: { developers: helper.getIdFromMention(args[1]) } })
+                if ('err' in dbGuild) {
+                    echo.error(`Adding developer. Code ${dbGuild.code}.`)
+                    echo.error(dbGuild.err)
+                    message.channel.send(config.texts.generalError)
+                } else message.channel.send(`${args[1]} is not my master anymore! Got it.`)
+                break
         }
     }
 }
@@ -96,6 +114,11 @@ function checkCommandArguments(args) {
                 if (Object.values(config.commands.set.roles[i]).includes(args[1])) return true
             }
             return false
+        case 'trusted':
+        case 'developer':
+            // Check for args[1]
+            if (!args[1] || !helper.getIdFromMention(args[1])) return false
+            else return true
         default:
             return false
     }

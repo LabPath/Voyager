@@ -7,11 +7,9 @@ const Guild = mongoose.model('Guilds', new mongoose.Schema({
     role_id: String,
     message_reaction_id: String,
     developers: Array,
-    roles: Array, // Entries for this are inside the config.json file (commands.set.roles)
-    channels: { // TODO: Don't make this hardcoded. Channels should simply be an array
-        reddit: String,
-        roles: String
-    }
+    trusted_users: Array,
+    roles: Array, // Entries for this are inside the config.json file (commands.set.roles) // TODO: Change this to an object
+    channels: Object // Entries for this are inside the config.json file (commands.set.channels)
 }))
 
 // Exports

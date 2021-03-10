@@ -23,7 +23,8 @@
         "set": {
             "channels": [
                 "reddit",
-                "roles"
+                "roles",
+                "codes"
             ],
             "roles": {
                 "visual_guides": [

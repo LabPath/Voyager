@@ -32,6 +32,7 @@ module.exports = {
 
         // Switch statement for type of set
         switch (args[0]) {
+            // TODO: Set developers here instead of commands/developer.js. Same trusted users.
             case 'channel':
                 // Set channel
                 if (args[2]) dbGuild = await setChannel(dbGuild, args[1], args[2])
@@ -85,8 +86,8 @@ module.exports = {
                 break
             case 'role':
                 // Variables
-                let emoji = null
-                let type = null
+                var emoji = null
+                var type = null
 
                 // Check for type
                 for (i of Object.keys(config.commands.set.roles)) if (Object.values(config.commands.set.roles[i]).includes(args[1])) {
@@ -123,6 +124,24 @@ module.exports = {
                     // TODO: If it's a new role, update reaction embed with new role
                 }
                 break
+            case 'trusted':
+                // Add Trusted User to Guild
+                dbGuild = await controllerGuild.put(dbGuild.data._id, { $addToSet: { trusted_users: helper.getIdFromMention(args[1]) } })
+                if ('err' in dbGuild) {
+                    echo.error(`Adding trusted user. Code ${dbGuild.code}.`)
+                    echo.error(dbGuild.err)
+                    message.channel.send(config.texts.generalError)
+                } else message.channel.send(`${args[1]} is now part of the Team! Got it.`)
+                break
+            case 'developer':
+                // Add Developer to Guild
+                dbGuild = await controllerGuild.put(dbGuild.data._id, { $addToSet: { developers: helper.getIdFromMention(args[1]) } })
+                if ('err' in dbGuild) {
+                    echo.error(`Adding developer. Code ${dbGuild.code}.`)
+                    echo.error(dbGuild.err)
+                    message.channel.send(config.texts.generalError)
+                } else message.channel.send(`${args[1]} is now one of my masters as well! Got it.`)
+                break
         }
     }
 }
@@ -149,6 +168,11 @@ function checkCommandArguments(args) {
                 // TODO: Check if args[3] is valid URL or emoji ID
             }
             return false
+        case 'trusted':
+        case 'developer':
+            // Check for args[1]
+            if (!args[1] || !helper.getIdFromMention(args[1])) return false
+            else return true
         default:
             return false
     }
