@@ -1,3 +1,6 @@
+// Require: Packages
+const tough = require('tough-cookie')
+
 // Require: Libs
 const helper = require('../lib/helper')
 const axios = require('../lib/axios')
@@ -5,6 +8,62 @@ const axios = require('../lib/axios')
 // Require: Files
 const config = require('../config.json')
 const controllerUser = require('../database/User/controller')
+
+/**
+ * 38536241 {}
+ * 8582007 {}
+ * 8997329 {}
+ * Logout 8997329 {undefined}
+ * Logout 8997329 {undefined}
+ * Logout 8997329 {undefined}
+ * Verification Mail 8997329 {defined}
+ * Verification Code 8997329 {defined}
+ * Users 8997329 {defined}
+ * ----
+ * When Zeb got asked to send his verification, tester got told Zebs UID is out of seconds
+ * Zeb's Tester 12947357 {}
+ * Zebiano 38536241 {}
+ * Logout Zebiano 38536241 {undefined}
+ * Verification Mail Zebiano 38536241 {defined}
+ * Logout Zeb's Tester 38536241 {undefined}
+ * ----
+ * Quickly react first Zeb then Tester.
+ * Zebiano 38536241 {}
+ * Zeb's Tester 12947357 {}
+ * Logout Zebiano 12947357 {undefined}
+ * Verification Mail Zebiano 12947357 {defined}
+ * logout Zeb's Tester 12947357 {undefined}
+ * ----
+ * Quickly react first Zeb then Tester. When Zeb got asked to send his verification, tester got told hes out of seconds
+ * Zebiano 38536241 {}
+ * Zeb's Tester 12947357 {}
+ * Logout Zebiano 12947357 {undefined}
+ * Verification Mail Zebiano 12947357 {defined}
+ * Logout Zeb's Tester 12947357 {undefined}
+ * ----
+ * Quickly react first Zeb then Tester. When Zeb got asked to send his verification, tester got told hes out of seconds
+ * Zebiano 38536241 {}
+ * Zeb's Tester 12947357 {}
+ * Logout Zebiano 12947357 {undefined}
+ * Verification Mail Zebiano 12947357 {defined}
+ * Logout Zeb's Tester 12947357 {undefined}
+ * ----
+ * React for Zeb and wait for verification code message before reacting on Tester.
+ * When Zeb got asked to send his verification and after tester reacting, tester got told hes out of seconds.
+ * Tester UID is actually on cooldown. Though Zebs isn't.
+ * Zebiano 38536241 {}
+ * Zeb's Tester 12947357 {}
+ * Logout Zebiano 12947357 {undefined}
+ * Verification Mail Zebiano 12947357 {defined}
+ * Logout Zeb's Tester 12947357 {undefined}
+ * ---
+ * From the tests above, I've come to the conclusion i (UIDs) are not getting tracked correctly.
+ * The i (UID) being used is always the last one from reacting with the ready emoji.
+ * ----
+ * I think I fixed it!
+ * Using for (i of array) was messing up and i was being passed onto other "instances"
+ * Though using for (let i = 0; i < array; i++) and then array[i] seems to work
+ */
 
 // Exports
 module.exports = {
@@ -53,23 +112,55 @@ module.exports = {
         // User exists
         else if (user.code == 200) {
             // Iterate over user UIDs
-            for (i of user.data.afk.afk_uids) {
+            for (let i = 0; i < user.data.afk.afk_uids.length; i++) {
                 // Variables
                 let data = null
                 let users = null
+                let verificationCode = null
 
-                data = await askIfReady(message, i) // Ask if user is ready for sending verification code
-                if (data) data = await logout(message, i) // Logout first
-                if (data) data = await sendVerificationMail(message, i) // Ask for Verification Mail
-                if (data) data = await sendVerificationCode(message, i, data) // Send Verification Code
-                if (data) users = await getUsersUIDs(message, i) // Get alt Accounts
+                // Create new Cookie Jar
+                const cookieJar = new tough.CookieJar()
+                console.log(message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
+
+                // Ask if user is ready for sending verification code
+                data = await askIfReady(message, user.data.afk.afk_uids[i])
+                console.log(message.author.username, user.data.afk.afk_uids, user.data.afk.afk_uids[0], user.data.afk.afk_uids[i])
+
+                // Logout first
+                if (data) data = await logout(message, cookieJar, user.data.afk.afk_uids[i])
+                else return
+                if (data) console.log('Logout', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
+
+                // Send Verification Mail
+                if (data) data = await sendVerificationMail(message, cookieJar, user.data.afk.afk_uids[i])
+                else return
+                if (data) console.log('Verification Mail', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
+
+                // Ask for verification Code
+                if (data) verificationCode = await askVerificationCode(message)
+                else return
+                console.log('Verification Code:', data)
+
+                // Send Verification Code
+                if (verificationCode) data = await sendVerificationCode(message, cookieJar, user.data.afk.afk_uids[i], verificationCode)
+                else return
+                if (data) console.log('Verification Code', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
+
+                // Get alt Accounts
+                if (data) data = await getUsersUIDs(message, cookieJar, user.data.afk.afk_uids[i])
+                else return
+                if (data) console.log('Users', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
+
+                // Set Users
+                if (data) users = data.data.data.users
+                else return
 
                 // Send message
                 message.channel.send('Working on it...')
 
                 // Iterate over Users
-                if (users) for (j of users) {
-                    data = await redeemCode(j, args)
+                for (let j = 0; j < users.length; j++) {
+                    data = await redeemCode(cookieJar, users[j], args)
                     if (data == 'break_all') break
                     else message.channel.send(data)
                 }
@@ -134,8 +225,14 @@ async function askIfReady(message, i) {
 }
 
 // Logs user out from redemption codes website
-async function logout(message, i) {
-    res = await axios.get(config.links.redeem.logout + i)
+async function logout(message, cookieJar, i) {
+    // Variables
+    const options = {
+        jar: cookieJar
+    }
+
+    // TODO: Aproveitar para ver porque e que se o tempo acabar no emoji de "im ready" ele nao sair do command e continuar o codigo aseguir
+    const res = await axios.get(config.links.redeem.logout + i, options)
     // Not OK
     if (res.data.info != 'ok') {
         console.log('--- Logout ---')
@@ -146,15 +243,18 @@ async function logout(message, i) {
 }
 
 // Send a verification code to in-game mail
-async function sendVerificationMail(message, i) {
+async function sendVerificationMail(message, cookieJar, i) {
     // Variables
     const body = {
         game: 'afk',
         uid: i
     }
+    const options = {
+        jar: cookieJar
+    }
 
     // Request
-    res = await axios.post(config.links.redeem.sendMail, body)
+    const res = await axios.post(config.links.redeem.sendMail, body, options)
 
     // Send mail too often
     if (res.data.info == 'err_send_mail_too_often') {
@@ -169,26 +269,36 @@ async function sendVerificationMail(message, i) {
         return false
     }
     // Success
-    else return verificationCode = await askVerificationCode(message)
+    else return true
 }
 
 // Sends Verification code to Lilith
-async function sendVerificationCode(message, i, verificationCode) {
+async function sendVerificationCode(message, cookieJar, i, verificationCode) {
+    // TODO: remove mention from verificationCode when it exists
     // Variables
     const body = {
         game: 'afk',
         uid: i,
         code: verificationCode
     }
+    const options = {
+        jar: cookieJar
+    }
 
     // Request
-    res = await axios.post(config.links.redeem.verifyCode, body)
+    const res = await axios.post(config.links.redeem.verifyCode, body, options)
 
     // Wrong Verification Code
     if (res.data.info == 'err_wrong_code') {
         message.channel.send(`Lilith says that's a wrong code. Please try again.`)
         verificationCode = await askVerificationCode(message)
-        await sendVerificationCode(message, i, verificationCode)
+        if (verificationCode) await sendVerificationCode(message, cookieJar, i, verificationCode)
+    }
+    // Code is not a valid string
+    else if (res.data.info == 'err_code_must_be_valid_string') {
+        message.channel.send(`Lilith says the code has an invalid format. Please make sure to send a message with the code only (no need to mention the bot)!`)
+        verificationCode = await askVerificationCode(message)
+        if (verificationCode) await sendVerificationCode(message, cookieJar, i, verificationCode)
     }
     // Not OK
     else if (res.data.info != 'ok') {
@@ -202,15 +312,18 @@ async function sendVerificationCode(message, i, verificationCode) {
 }
 
 // Gets all the UIDs from logged in user
-async function getUsersUIDs(message, i) {
+async function getUsersUIDs(message, cookieJar, i) {
     // Variables
     const body = {
         game: 'afk',
         uid: i
     }
+    const options = {
+        jar: cookieJar
+    }
 
     // Request
-    res = await axios.post(config.links.redeem.users, body)
+    const res = await axios.post(config.links.redeem.users, body, options)
 
     // Not OK
     if (res.data.info != 'ok') {
@@ -220,11 +333,11 @@ async function getUsersUIDs(message, i) {
         return false
     }
     // Success
-    else return res.data.data.users
+    else return res
 }
 
 // Redeem code for user
-async function redeemCode(user, args) {
+async function redeemCode(cookieJar, user, args) {
     // Variables
     let description = `\`\`\`json\n${user.name} (${user.uid}): {\n`
 
@@ -237,9 +350,12 @@ async function redeemCode(user, args) {
             uid: user.uid,
             cdkey: i
         }
+        const options = {
+            jar: cookieJar
+        }
 
         // Request
-        res = await axios.post(config.links.redeem.consume, body)
+        const res = await axios.post(config.links.redeem.consume, body, options)
 
         // Expired Code
         if (res.data.info == 'err_cdkey_expired') {

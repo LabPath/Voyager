@@ -14,6 +14,7 @@ module.exports = {
     devOnly: false,
     needsDatabaseGuild: false,
     channelTypes: ['dm'],
+    // TODO: A way to quit waiting state (q, quit, cancel, exit)
     async execute(message, args, dbGuild) {
         // Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)

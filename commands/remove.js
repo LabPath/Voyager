@@ -78,7 +78,7 @@ module.exports = {
                 break
             case 'trusted':
                 // Remove Trusted User
-                dbGuild = await controllerGuild.put(dbGuild.data._id, { $pull: { trusted_users: helper.getIdFromMention(args[1]) } })
+                dbGuild = await controllerGuild.put(dbGuild.data._id, { $pull: { trusted: helper.getIdFromMention(args[1]) } })
                 if ('err' in dbGuild) {
                     echo.error(`Adding trusted user. Code ${dbGuild.code}.`)
                     echo.error(dbGuild.err)
@@ -133,7 +133,7 @@ async function removeChannel(message, dbGuild, type) {
     if (type == 'roles') {
         const msg = await message.client.channels.cache
             .get(dbGuild.data.channels.roles).messages
-            .fetch('dbGuild.data.message_reaction_id')
+            .fetch(dbGuild.data.message_reaction_id)
             .catch(err => { console.log(err) }) // TODO: Catch doesn't work... Delete role message and run rem channel roles
         if (msg) msg.delete()
         else message.channel.send('Could not find Reaction Embed Message. Did not delete it.')

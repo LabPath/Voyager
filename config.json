@@ -62,7 +62,7 @@
         },
         "redeem": {
             "questions": [
-                "Enter the verification code sent to your in-game mail within 1 minute."
+                "Enter the verification code sent to your in-game mail within 1 minute. No need to mention the bot."
             ]
         }
     },
@@ -89,7 +89,6 @@
         "userLacksPerms": "You lack permissions!",
         "wrongChannel": "I cannot do that here!",
         "botLacksPerms": "I don't have enough permissions to do that! Click here to grant me the necessary permissions:",
-        "resetDatabaseGuild": "Something has gone wrong on my side, I had to reset some settings. Please add developers (aka people you trust) to the bot again with the `dev` command. Sorry for the hassle!",
         "wrongCommandUsage": "Wrong command usage!",
         "outOfTime": "The operation has been cancelled due to inactivity.",
         "user": {
@@ -97,9 +96,6 @@
             "successUpdating": "Successfully updated your info:",
             "successFound": "Found the following info about you:",
             "successDelete": "Successfully deleted your info! Sad to see you go."
-        },
-        "redeem": {
-            "tooOften": "Lilith says I've been trying too often to redeem codes for you. Please "
         }
     },
     "reddit": {

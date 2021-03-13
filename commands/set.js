@@ -126,7 +126,7 @@ module.exports = {
                 break
             case 'trusted':
                 // Add Trusted User to Guild
-                dbGuild = await controllerGuild.put(dbGuild.data._id, { $addToSet: { trusted_users: helper.getIdFromMention(args[1]) } })
+                dbGuild = await controllerGuild.put(dbGuild.data._id, { $addToSet: { trusted: helper.getIdFromMention(args[1]) } })
                 if ('err' in dbGuild) {
                     echo.error(`Adding trusted user. Code ${dbGuild.code}.`)
                     echo.error(dbGuild.err)
@@ -184,7 +184,11 @@ async function setChannel(dbGuild, type, channelId) {
     let body = { channels: dbGuild.data.channels }
 
     // Set channel ID
-    body.channels[type] = channelId
+    if (body.channels) body.channels[type] = channelId
+    else {
+        body = { channels: {} }
+        body.channels[type] = channelId
+    }
 
     // Return
     return await controllerGuild.put(dbGuild.data._id, body)

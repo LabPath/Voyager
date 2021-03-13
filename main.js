@@ -67,7 +67,7 @@ client.once('ready', async function () {
     }
 
     // Cache reaction messages if dbGuilds[i] has a roles channel
-    for (i of dbGuilds.data) if (i.channels.roles) {
+    for (i of dbGuilds.data) if (i.channels && i.channels.roles) {
         await client.channels.cache
             .get(i.channels.roles).messages.fetch(i.message_reaction_id)
             .catch(async err => { if (err.message.includes('Unknown')) await controllerGuild.put(i._id, { message_reaction_id: null }) })
@@ -167,10 +167,10 @@ client.on('message', async function (message) {
                     echo.error(`Creating Guild. Code ${dbGuild.code}.`)
                     echo.error(dbGuild.err)
                     return message.channel.send(config.texts.generalError)
-                } else message.guild.owner.send(config.texts.resetDatabaseGuild)
+                } else message.guild.owner.send(`Something has gone wrong on my side, I had to reset all settings for your Guild \`${message.guild.name} - ${message.guild.id}\`. Please set me up again! Sorry for the hassle.`)
             }
             // Check if Voyager role is saved in database
-            else if (!dbGuild.data.role_id) {
+            else if (!dbGuild.data.role_id) { // TODO: test if developer.length == 0, and add server owner to it if yes
                 // Update 
                 controllerGuild.put(dbGuild.data._id, { role_id: voyagerRoleId })
 
