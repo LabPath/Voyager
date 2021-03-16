@@ -195,7 +195,7 @@ async function askUID(message, body) {
     })
 }
 
-// Ask if user wants to have the bot automatically attempt to redeem new redemption codes
+// Ask if user wants bot to send a message to user whenever a new code is available
 async function askNotify(message, body) {
     // Filter
     const filter = (reaction, user) => {

@@ -8,6 +8,7 @@ const axios = require('../lib/axios')
 // Require: Files
 const config = require('../config.json')
 const controllerUser = require('../database/User/controller')
+const controllerCodes = require('../database/Code/controller')
 
 /**
  * 38536241 {}
@@ -160,7 +161,7 @@ module.exports = {
 
                 // Iterate over Users
                 for (let j = 0; j < users.length; j++) {
-                    data = await redeemCode(cookieJar, users[j], args)
+                    data = await redeemCode(cookieJar, users[j], args, message)
                     if (data == 'break_all') break
                     else message.channel.send(data)
                 }
@@ -340,15 +341,16 @@ async function getUsersUIDs(message, cookieJar, i) {
 async function redeemCode(cookieJar, user, args) {
     // Variables
     let description = `\`\`\`json\n${user.name} (${user.uid}): {\n`
+    let arrayExpired = []
 
     // Iterate over args (codes)
-    for (i of args) {
+    for (let i = 0; i < args.length; i++) {
         // Variables
         const body = {
             type: "cdkey_web",
             game: "afk",
             uid: user.uid,
-            cdkey: i
+            cdkey: args[i]
         }
         const options = {
             jar: cookieJar
@@ -359,15 +361,16 @@ async function redeemCode(cookieJar, user, args) {
 
         // Expired Code
         if (res.data.info == 'err_cdkey_expired') {
-            description += `  "${i}": "Has expired.",\n`
+            description += `  "${args[i]}": "Has expired.",\n`
+            if (!arrayExpired.includes(args[i])) arrayExpired.push(args[i])
         }
         // Already redeemed code
         else if (res.data.info == 'err_cdkey_batch_error') {
-            description += `  "${i}": "Already claimed.",\n`
+            description += `  "${args[i]}": "Already claimed.",\n`
         }
         // Code invalid
         else if (res.data.info == 'err_cdkey_record_not_found') {
-            description += `  "${i}": "Invalid code.",\n`
+            description += `  "${args[i]}": "Invalid code.",\n`
         }
         // Not OK
         else if (res.data.info != 'ok') {
@@ -377,7 +380,22 @@ async function redeemCode(cookieJar, user, args) {
             return 'breakAll'
         }
         // Success
-        else description += `  "${i}": "Redeemed!",\n`
+        else description += `  "${args[i]}": "Redeemed!",\n`
+    }
+
+    // Delete codes from DB that have expired
+    for (let i = 0; i < arrayExpired.length; i++) {
+        controllerCodes.delete({ code: arrayExpired[i] })
+            .then((code) => {
+                message.client.users.fetch(config.creators.Zebiano, false).then((user) => {
+                    user.send(`Deleted redemption code \`${arrayExpired[i]}\` because it has expired.`)
+                })
+            })
+            .catch((err) => {
+                message.client.users.fetch(config.creators.Zebiano, false).then((user) => {
+                    user.send(`Tried to delete redemption code \`${arrayExpired[i]}\` because it has expired, but encountered an error: ${err}`)
+                })
+            })
     }
 
     // Add end of code block

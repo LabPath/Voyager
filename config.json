@@ -9,7 +9,8 @@
             "READ_MESSAGE_HISTORY",
             "MENTION_EVERYONE",
             "USE_EXTERNAL_EMOJIS",
-            "ADD_REACTIONS"
+            "ADD_REACTIONS",
+            ""
         ],
         "unnecessary": [
             "PRIORITY_SPEAKER",
@@ -64,6 +65,11 @@
             "questions": [
                 "Enter the verification code sent to your in-game mail within 1 minute. No need to mention the bot."
             ]
+        },
+        "code": {
+            "questions": [
+                "Should I update the info above with the info you gave me?"
+            ]
         }
     },
     "links": {
@@ -86,6 +92,7 @@
     },
     "texts": {
         "generalError": "Sorry, but something did not go as planned. Please let my creators know!",
+        "generalLetCreatorsKnow": "If something is wrong, please let my creators know!",
         "userLacksPerms": "You lack permissions!",
         "wrongChannel": "I cannot do that here!",
         "botLacksPerms": "I don't have enough permissions to do that! Click here to grant me the necessary permissions:",
@@ -96,11 +103,20 @@
             "successUpdating": "Successfully updated your info:",
             "successFound": "Found the following info about you:",
             "successDelete": "Successfully deleted your info! Sad to see you go."
+        },
+        "code": {
+            "alreadyExists": "I already have that code in my system, thank you.",
+            "successCreatingNew": "Successfully saved the following:",
+            "successFound": "Found the following info:",
+            "successUpdating": "Successfully updated to:"
         }
     },
     "reddit": {
         "lab_path": {
             "checkInterval": 900000
         }
+    },
+    "creators": {
+        "Zebiano": "241655863616471041"
     }
 }

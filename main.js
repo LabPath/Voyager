@@ -17,6 +17,8 @@ const helper = require('./lib/helper')
 const client = new discord.Client()
 client.commands = new discord.Collection()
 
+// TODO: Check how for loops scope variables. I tend to use for (i of array) a lot, but if that fucks up because a lot of people use the same command at the same time, we have a problem.
+
 // Check for .env file
 if (!fs.existsSync('./.env')) echo.error('No .env file found! Please create one.', true)
 else {
