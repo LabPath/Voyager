@@ -5,7 +5,8 @@ const mongoose = require('mongoose')
 const Code = mongoose.model('Codes', new mongoose.Schema({
     code: { type: String, required: true },
     expiration_date: { type: String, default: 'Unknown/Never' },
-    rewards: Array
+    rewards: Array,
+    published: { type: Boolean, default: false }
 }))
 
 // Exports

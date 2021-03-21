@@ -68,7 +68,8 @@
         },
         "code": {
             "questions": [
-                "Should I update the info above with the info you gave me?"
+                "Should I update the info above with the info you gave me?",
+                "Is this redemption code ready to be published to all servers?"
             ]
         }
     },
@@ -98,6 +99,7 @@
         "botLacksPerms": "I don't have enough permissions to do that! Click here to grant me the necessary permissions:",
         "wrongCommandUsage": "Wrong command usage!",
         "outOfTime": "The operation has been cancelled due to inactivity.",
+        "noCodesChannelSet": "No `codes` channel set! Please add one to your server with `set channel codes`.",
         "user": {
             "successCreatingNew": "Successfully saved the following:",
             "successUpdating": "Successfully updated your info:",
@@ -108,7 +110,8 @@
             "alreadyExists": "I already have that code in my system, thank you.",
             "successCreatingNew": "Successfully saved the following:",
             "successFound": "Found the following info:",
-            "successUpdating": "Successfully updated to:"
+            "successUpdating": "Successfully updated to:",
+            "alreadyPublished": "That code has already been published!"
         }
     },
     "reddit": {

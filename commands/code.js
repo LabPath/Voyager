@@ -59,22 +59,33 @@ module.exports = {
             // Success
             else {
                 // Variables
-                const info = helper.generateRedemptionCodesInfo(code.data.code, code.data.expiration_date, code.data.rewards)
-                const description = `${info.code}\n${info.body}`
+                const description = `${code.data.code}\n${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}`
 
                 // Send embed
                 message.channel.send(embeds.simple(config.colors.success, config.texts.code.successCreatingNew, description))
+
+                // Ask to publish
+                if (await askToPublish(message, code)) await publishCode(message, code, dbGuild)
             }
         }
         // Code exists
         else if (code.code == 200) {
-            // Variables
-            const info = helper.generateRedemptionCodesInfo(code.data.code, code.data.expiration_date, code.data.rewards)
-            const description = `${info.code}\n${info.body}`
+            // User only sent code
+            if (!args[1]) {
+                // Ask to publish
+                if (code.data.published == false) {
+                    if (await askToPublish(message, code)) await publishCode(message, code, dbGuild)
+                } else message.channel.send(config.texts.code.alreadyPublished)
+            }
+            // User sent code and info as well
+            else {
+                // Variables
+                const description = `${code.data.code}\n${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}`
 
-            // Send embed
-            message.channel.send(config.texts.code.alreadyExists)
-            await showCode(message, description, code, args)
+                // Send embed
+                message.channel.send(config.texts.code.alreadyExists)
+                await showCode(message, description, code, args, dbGuild)
+            }
         }
     }
 }
@@ -82,10 +93,16 @@ module.exports = {
 /* --- Functions --- */
 // Check if arguments are correct
 function checkCommandArguments(args) {
-    // Check for args
-    if (!args[0] || !args[1] || !args[2] || !args[3]) return false
-    // Check for Emoji
-    else if (!helper.getIdFromMention(args[2])) return false
+    // Check for args[0]
+    if (!args[0]) return false
+    // Check for args[1]
+    else if (args[1]) {
+        // Check for args[>1]
+        if (!args[2] || !args[3]) return false
+        // Check for Emoji
+        else if (!helper.getIdFromMention(args[2])) return false
+        else return true
+    }
     else return true
 }
 
@@ -112,28 +129,33 @@ function generateCode(args) {
     return body
 }
 
-
 // Show embed with info and ask to update or delete or quit
-async function showCode(message, description, code, args) {
+async function showCode(message, description, code, args, dbGuild) { // TODO: make this a helper function. As well as all functions that rely on waiting for input.
     // Variables
     const filter = (reaction, user) => {
-        if (user.id === message.author.id && (reaction.emoji.name === '🔄' || reaction.emoji.name === '❌' || reaction.emoji.name === '🇶')) return true
+        if (user.id === message.author.id && (reaction.emoji.name === '🔄' || reaction.emoji.name === '❌' || reaction.emoji.name === '🇶' || reaction.emoji.name === '🇵')) return true
         return false
     }
 
     // Send embed
     message.channel.send(embeds.simple(config.colors.success, config.texts.code.successFound, description)).then((msg) => {
         msg.react('🔄')
+        msg.react('🇵')
         msg.react('❌')
         msg.react('🇶')
-        msg.awaitReactions(filter, { max: 1, time: 10000, errors: ['time'] })
+        msg.awaitReactions(filter, { max: 1, time: 60000, errors: ['time'] })
             .then(async collected => {
                 // Update
                 if (collected.first()._emoji.name == '🔄') updateCode(message, code, args)
                 // Delete
                 else if (collected.first()._emoji.name == '❌') deleteCode(message, code)
+                // Publish
+                else if (collected.first()._emoji.name == '🇵') {
+                    if (code.data.published == false) publishCode(message, code, dbGuild)
+                    else message.channel.send(config.texts.code.alreadyPublished)
+                }
                 // Quit
-                else if (collected.first()._emoji.name == '🇶') return message.channel.send('Got it, quitting.')
+                else if (collected.first()._emoji.name == '🇶') message.channel.send('Got it, quitting.')
             })
             .catch(collected => {
                 msg.channel.send(config.texts.outOfTime)
@@ -153,8 +175,7 @@ async function updateCode(message, code, args) {
     // Success
     else {
         // Variables
-        const info = helper.generateRedemptionCodesInfo(code.data.code, code.data.expiration_date, code.data.rewards)
-        const description = `${info.code}\n${info.body}`
+        const description = `${code.data.code}\n${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}`
 
         // Send embed
         message.channel.send(embeds.simple(config.colors.success, config.texts.code.successUpdating, description))
@@ -175,4 +196,65 @@ async function deleteCode(message, code) {
         // Send embed
         message.channel.send(`Successfully deleted code \`${code.data.code}\``)
     }
+}
+
+// Ask user if code is ready to be published
+async function askToPublish(message, code) {
+    // Filter
+    const filter = (reaction, user) => {
+        if (user.id === message.author.id && (reaction.emoji.name === '👍' || reaction.emoji.name === '👎')) return true
+        return false
+    }
+
+    // Ask
+    return await message.channel.send(config.commands.code.questions[1]).then((msg) => {
+        msg.react('👍')
+        msg.react('👎')
+        return msg.awaitReactions(filter, { max: 1, time: 40000, errors: ['time'] })
+            .then(async collected => {
+                // Save to body
+                if (collected.first()._emoji.name == '👍') return true
+                else {
+                    message.channel.send(`Got it, not publishing. Run \`code ${code.data.code}\` so I can ask you again!`)
+                    return false
+                }
+            })
+            .catch(collected => {
+                msg.channel.send(config.texts.outOfTime)
+                return false
+            })
+    })
+}
+
+// Publish code to channel and send users a notification
+async function publishCode(message, code, dbGuild) {
+    // console.log(dbGuild.data.roles)
+    // Check if codes channel is set
+    if (dbGuild.data.channels && dbGuild.data.channels.codes) {
+        // Get codes role ID
+        for (let i = 0; i < dbGuild.data.roles.length; i++) {
+            if (dbGuild.data.roles[i]['redemption_codes']) {
+                // Variables
+                const channel = message.client.channels.cache.get(dbGuild.data.channels.codes)
+
+                // Send code and publish if possible
+                const msgCode = await channel.send(code.data.code)
+                msgCode.react('🎁')
+                if (channel.type === 'news') msgCode.crosspost().catch((err) => { console.log(err) })
+
+                // Send info and publish if possible
+                const msgInfo = await channel.send(helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards))
+                if (channel.type === 'news') msgInfo.crosspost().catch((err) => { console.log(err) })
+
+                // Tag role
+                channel.send(helper.getRoleAsMentionFromId(dbGuild.data.roles[i]['redemption_codes'].id))
+
+                // TODO: Update DB published = true
+
+                // Break
+                break
+            }
+        }
+    } else return message.channel.send(config.texts.noCodesChannelSet)
+    // TODO: Send notification to users (Should I? :thinking:)
 }
