@@ -5,6 +5,7 @@ const helper = require('../lib/helper')
 // Require: Files
 const config = require('../config.json')
 const controllerCodes = require('../database/Code/controller')
+const controllerUsers = require('../database/User/controller')
 
 // Exports
 module.exports = {
@@ -65,7 +66,13 @@ module.exports = {
                 message.channel.send(embeds.simple(config.colors.success, config.texts.code.successCreatingNew, description))
 
                 // Ask to publish
-                if (await askToPublish(message, code)) await publishCode(message, code, dbGuild)
+                if (await askToPublish(message, code)) {
+                    // Publish
+                    code = await publishCode(message, code, dbGuild)
+
+                    // Send notification to users
+                    sendNotification(message, code)
+                }
             }
         }
         // Code exists
@@ -74,7 +81,13 @@ module.exports = {
             if (!args[1]) {
                 // Ask to publish
                 if (code.data.published == false) {
-                    if (await askToPublish(message, code)) await publishCode(message, code, dbGuild)
+                    if (await askToPublish(message, code)) {
+                        // Publish
+                        code = await publishCode(message, code, dbGuild)
+
+                        // Send notification to users
+                        sendNotification(message, code)
+                    }
                 } else message.channel.send(config.texts.code.alreadyPublished)
             }
             // User sent code and info as well
@@ -151,7 +164,13 @@ async function showCode(message, description, code, args, dbGuild) { // TODO: ma
                 else if (collected.first()._emoji.name == '❌') deleteCode(message, code)
                 // Publish
                 else if (collected.first()._emoji.name == '🇵') {
-                    if (code.data.published == false) publishCode(message, code, dbGuild)
+                    if (code.data.published == false) {
+                        // Publish
+                        code = await publishCode(message, code, dbGuild)
+
+                        // Send notification to users
+                        sendNotification(message, code)
+                    }
                     else message.channel.send(config.texts.code.alreadyPublished)
                 }
                 // Quit
@@ -239,7 +258,6 @@ async function publishCode(message, code, dbGuild) {
 
                 // Send code and publish if possible
                 const msgCode = await channel.send(code.data.code)
-                msgCode.react('🎁')
                 if (channel.type === 'news') msgCode.crosspost().catch((err) => { console.log(err) })
 
                 // Send info and publish if possible
@@ -249,12 +267,26 @@ async function publishCode(message, code, dbGuild) {
                 // Tag role
                 channel.send(helper.getRoleAsMentionFromId(dbGuild.data.roles[i]['redemption_codes'].id))
 
-                // TODO: Update DB published = true
+                // Update DB published = true
+                code = await controllerCodes.put(code.data._id, { published: true })
 
-                // Break
-                break
+                // Break and return
+                return code
             }
         }
     } else return message.channel.send(config.texts.noCodesChannelSet)
-    // TODO: Send notification to users (Should I? :thinking:)
+}
+
+// Send a DM notification to every user with notify = true
+async function sendNotification(message, code) {
+    // Variables
+    const users = await controllerUsers.get()
+
+    // Iterate over all user
+    for (let i = 0; i < users.data.length; i++) {
+        // Send redeem message
+        message.client.users.fetch(users.data[i].discord_id, false).then((user) => {
+            user.send(`A new code has arrived! Copy paste the following message so I can redeem it for you:\n\`\`\`\n@Voyager - DEV#5810 redeem ${code.data.code}\`\`\``)
+        })
+    }
 }

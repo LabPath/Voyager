@@ -25,7 +25,8 @@
             "channels": [
                 "reddit",
                 "roles",
-                "codes"
+                "codes",
+                "logs"
             ],
             "roles": {
                 "visual_guides": [

@@ -35,7 +35,7 @@ module.exports = {
             // TODO: Set developers here instead of commands/developer.js. Same trusted users.
             case 'channel':
                 // Set channel
-                if (args[2]) dbGuild = await setChannel(dbGuild, args[1], args[2])
+                if (args[2]) dbGuild = await setChannel(dbGuild, args[1], helper.getIdFromMention(args[2]))
                 else dbGuild = await setChannel(dbGuild, args[1], message.channel.id)
 
                 // Check if error in dbGuild
@@ -46,7 +46,7 @@ module.exports = {
                 } else {
                     if (args[2]) {
                         message.channel
-                            .send(`Set ${helper.getChannelAsMentionFromId(args[2])} as a \`${args[1]}\` channel.`)
+                            .send(`Set ${args[2]} as a \`${args[1]}\` channel.`)
                             .then(msg => {
                                 msg.delete({ timeout: config.timings.msgDelete })
                                 message.delete({ timeout: config.timings.msgDelete })
