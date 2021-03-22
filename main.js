@@ -176,13 +176,14 @@ client.on('message', async function (message) {
                 // Variables
                 let body = {}
 
-                // Check for role_id and developers
+                // Check for role_id
                 if (!dbGuild.data.role_id) body.role_id = voyagerRoleId
+
+                // Check for developers array
                 if (!dbGuild.data.developers.includes(message.guild.ownerID)) {
                     body.developers = dbGuild.data.developers
                     body.developers.push(message.guild.ownerID)
                 }
-                console.log(dbGuild.data)
 
                 // Check for error in dbGuild
                 dbGuild = await controllerGuild.put(dbGuild.data._id, body)

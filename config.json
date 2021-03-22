@@ -101,6 +101,7 @@
         "wrongCommandUsage": "Wrong command usage!",
         "outOfTime": "The operation has been cancelled due to inactivity.",
         "noCodesChannelSet": "No `codes` channel set! Please add one to your server with `set channel codes`.",
+        "noCodesRoleSet": "No `redemption_codes` role set! Please add one to your server with `set role codes`.",
         "user": {
             "successCreatingNew": "Successfully saved the following:",
             "successUpdating": "Successfully updated your info:",

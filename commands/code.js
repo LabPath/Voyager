@@ -35,7 +35,7 @@ module.exports = {
         if (!checkCommandArguments(args))
             return message.channel.send(config.texts.wrongCommandUsage)
 
-        // A ideia e user code <code> <date> <emoji><amount> <emoji> <amount> <emoji2> <amount2>
+        // A ideia e user code <code> <date> <emoji> <amount> <emoji> <amount> <emoji2> <amount2>
         // Trusted users podem tambem usar isto para criar codigos novos
         // Codigos novos sao gravados na base de dados
         // Sempre que e usado este command, o bot cria a informacao no #redemption-codes
@@ -71,7 +71,7 @@ module.exports = {
                     code = await publishCode(message, code, dbGuild)
 
                     // Send notification to users
-                    sendNotification(message, code)
+                    if (code) sendNotification(message, code)
                 }
             }
         }
@@ -86,7 +86,7 @@ module.exports = {
                         code = await publishCode(message, code, dbGuild)
 
                         // Send notification to users
-                        sendNotification(message, code)
+                        if (code) sendNotification(message, code)
                     }
                 } else message.channel.send(config.texts.code.alreadyPublished)
             }
@@ -169,7 +169,7 @@ async function showCode(message, description, code, args, dbGuild) { // TODO: ma
                         code = await publishCode(message, code, dbGuild)
 
                         // Send notification to users
-                        sendNotification(message, code)
+                        if (code) sendNotification(message, code)
                     }
                     else message.channel.send(config.texts.code.alreadyPublished)
                 }
@@ -255,6 +255,7 @@ async function publishCode(message, code, dbGuild) {
             if (dbGuild.data.roles[i]['redemption_codes']) {
                 // Variables
                 const channel = message.client.channels.cache.get(dbGuild.data.channels.codes)
+                if (!channel) return message.channel.send(config.texts.noCodesChannelSet)
 
                 // Send code and publish if possible
                 const msgCode = await channel.send(code.data.code)
@@ -274,7 +275,14 @@ async function publishCode(message, code, dbGuild) {
                 return code
             }
         }
-    } else return message.channel.send(config.texts.noCodesChannelSet)
+
+        // Role redemption_codes is not set up
+        message.channel.send(config.texts.noCodesRoleSet)
+        return false
+    } else {
+        message.channel.send(config.texts.noCodesChannelSet)
+        return false
+    }
 }
 
 // Send a DM notification to every user with notify = true
@@ -286,7 +294,7 @@ async function sendNotification(message, code) {
     for (let i = 0; i < users.data.length; i++) {
         // Send redeem message
         message.client.users.fetch(users.data[i].discord_id, false).then((user) => {
-            user.send(`A new code has arrived! Copy paste the following message so I can redeem it for you:\n\`\`\`\n@Voyager - DEV#5810 redeem ${code.data.code}\`\`\``)
+            user.send(`A new code \`${code.data.code}\` has arrived (expires \`${code.data.expiration_date}\`)! Copy paste the following message so I can redeem it for you:\n\`\`\`\n@Voyager - DEV#5810 redeem ${code.data.code}\`\`\``)
         })
     }
 }
