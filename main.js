@@ -171,12 +171,21 @@ client.on('message', async function (message) {
                     return message.channel.send(config.texts.generalError)
                 } else message.guild.owner.send(`Something has gone wrong on my side, I had to reset all settings for your Guild \`${message.guild.name} - ${message.guild.id}\`. Please set me up again! Sorry for the hassle.`)
             }
-            // Check if Voyager role is saved in database
-            else if (!dbGuild.data.role_id) { // TODO: test if developer.length == 0, and add server owner to it if yes
-                // Update 
-                controllerGuild.put(dbGuild.data._id, { role_id: voyagerRoleId })
+            // Found
+            else {
+                // Variables
+                let body = {}
+
+                // Check for role_id and developers
+                if (!dbGuild.data.role_id) body.role_id = voyagerRoleId
+                if (!dbGuild.data.developers.length.includes(message.guild.ownerID)) {
+                    body.developers = dbGuild.data.developers
+                    body.developers.push(message.guild.ownerID)
+                }
+                console.log(dbGuild.data)
 
                 // Check for error in dbGuild
+                dbGuild = await controllerGuild.put(dbGuild.data._id, body)
                 if ('err' in dbGuild) {
                     echo.error(`Updating Guild. Code ${dbGuild.code}.`)
                     echo.error(dbGuild.err)
