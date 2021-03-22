@@ -49,10 +49,9 @@ async function deleteMessages(channel, n) {
     if (n == 'all') {
         // Clone channel
         const newChannel = await channel.clone()
-        console.log(newChannel.id)
 
         // Delete old channel
-        channel.delete() // TODO: before deleting maybe check if channel.id equals any dbGuild.channels.id 
+        channel.delete() // TODO: Before deleting maybe check if channel.id equals any dbGuild.channels.id 
     }
     // Delete n amount of messages (+ 1 because of command from user)
     else {

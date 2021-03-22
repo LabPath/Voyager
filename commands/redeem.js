@@ -9,6 +9,22 @@ const axios = require('../lib/axios')
 const config = require('../config.json')
 const controllerUser = require('../database/User/controller')
 const controllerCodes = require('../database/Code/controller')
+const controllerStat = require('../database/Stat/controller')
+
+// Variables
+let dbStats = null
+
+// Set dbStats
+controllerStat.getOne().then(async (stat) => {
+    // Error
+    if ('err' in stat) {
+        echo.error(`Getting Stats. Code ${stat.code}.`)
+        echo.error(stat.err)
+    }
+    // Stat does not exist
+    else if (stat.code == 404) dbStats = await controllerStat.post()
+    else if (stat.code == 200) dbStats = stat
+})
 
 /**
  * 38536241 {}
@@ -74,8 +90,6 @@ module.exports = {
     devOnly: false,
     needsDatabaseGuild: false,
     channelTypes: ['dm'],
-    // TODO: Anyone can redeem and it also tries to redeem on other users
-    // TODO: Create some sort of counter
     async execute(message, args, dbGuild) {
         // Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)
@@ -209,15 +223,19 @@ async function askVerificationCode(message) {
 async function askIfReady(message, i) {
     // Filter
     const filter = (reaction, user) => {
-        if (user.id === message.author.id && reaction.emoji.name === '👍') return true
+        if (user.id === message.author.id && (reaction.emoji.name === '👍' || reaction.emoji.name === '👎')) return true
         return false
     }
 
     // Ask
     return await message.channel.send(`React when you're ready to receive the verification code for account \`${i}\`.`).then((msg) => {
         msg.react('👍')
+        msg.react('👎')
         return msg.awaitReactions(filter, { max: 1, time: 20000, errors: ['time'] })
-            .then(async collected => { return true })
+            .then(async collected => {
+                if (collected.first()._emoji.name == '👍') return true
+                else return false
+            })
             .catch(collected => {
                 msg.channel.send(config.texts.outOfTime)
                 return false
@@ -232,7 +250,7 @@ async function logout(message, cookieJar, i) {
         jar: cookieJar
     }
 
-    // TODO: Aproveitar para ver porque e que se o tempo acabar no emoji de "im ready" ele nao sair do command e continuar o codigo aseguir
+    // Logout
     const res = await axios.get(config.links.redeem.logout + i, options)
     // Not OK
     if (res.data.info != 'ok') {
@@ -275,7 +293,6 @@ async function sendVerificationMail(message, cookieJar, i) {
 
 // Sends Verification code to Lilith
 async function sendVerificationCode(message, cookieJar, i, verificationCode) {
-    // TODO: remove mention from verificationCode when it exists
     // Variables
     const body = {
         game: 'afk',
@@ -358,6 +375,7 @@ async function redeemCode(cookieJar, user, args) {
 
         // Request
         const res = await axios.post(config.links.redeem.consume, body, options)
+        if (dbStats) controllerStat.put(dbStats.data._id, { $inc: { 'redemption_codes.totalAttempts': 1 } })
 
         // Expired Code
         if (res.data.info == 'err_cdkey_expired') {
@@ -380,10 +398,14 @@ async function redeemCode(cookieJar, user, args) {
             return 'breakAll'
         }
         // Success
-        else description += `  "${args[i]}": "Redeemed!",\n`
+        else {
+            description += `  "${args[i]}": "Redeemed!",\n`
+            if (dbStats) controllerStat.put(dbStats.data._id, { $inc: { 'redemption_codes.totalRedeemed': 1 } })
+        }
     }
 
     // Delete codes from DB that have expired
+    // TODO: Send message to logs channel
     for (let i = 0; i < arrayExpired.length; i++) {
         controllerCodes.delete({ code: arrayExpired[i] })
             .then((code) => {

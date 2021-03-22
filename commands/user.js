@@ -14,7 +14,6 @@ module.exports = {
     devOnly: false,
     needsDatabaseGuild: false,
     channelTypes: ['dm'],
-    // TODO: A way to quit waiting state (q, quit, cancel, exit)
     async execute(message, args, dbGuild) {
         // Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)
@@ -101,7 +100,7 @@ async function showUser(message, user) {
     // Variables
     let description = `\`\`\`json\nUID: ${user.data.afk.afk_uids}\nNotify: ${user.data.afk.notify}\`\`\`\nDo you want to update or delete it?`
     const filter = (reaction, user) => {
-        if (user.id === message.author.id && (reaction.emoji.name === '🔄' || reaction.emoji.name === '❌')) return true
+        if (user.id === message.author.id && (reaction.emoji.name === '🔄' || reaction.emoji.name === '❌' || reaction.emoji.name === '🇶')) return true
         return false
     }
 
@@ -109,12 +108,15 @@ async function showUser(message, user) {
     message.channel.send(embeds.simple(config.colors.success, config.texts.user.successFound, description)).then((msg) => {
         msg.react('🔄')
         msg.react('❌')
+        msg.react('🇶')
         msg.awaitReactions(filter, { max: 1, time: 10000, errors: ['time'] })
             .then(async collected => {
                 // Update
                 if (collected.first()._emoji.name == '🔄') createUser(message, user)
                 // Delete
                 else if (collected.first()._emoji.name == '❌') deleteUser(message, user)
+                // Quit
+                else if (collected.first()._emoji.name == '🇶') message.channel.send('Got it, quitting.')
             })
             .catch(collected => {
                 msg.channel.send(config.texts.outOfTime)

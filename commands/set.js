@@ -32,7 +32,6 @@ module.exports = {
 
         // Switch statement for type of set
         switch (args[0]) {
-            // TODO: Set developers here instead of commands/developer.js. Same trusted users.
             case 'channel':
                 // Set channel
                 if (args[2]) dbGuild = await setChannel(dbGuild, args[1], helper.getIdFromMention(args[2]))
@@ -95,12 +94,8 @@ module.exports = {
                     break
                 }
 
-                // Create emoji if url
-                if (args[3].includes('http')) {
-                    emoji = await helper.createEmoji(message.guild, args[3], type)
-                    emoji = { id: `${emoji.name}:${emoji.id}` }
-                }
-                else emoji = { id: helper.getIdFromMention(args[3]) }
+                // Emoji
+                emoji = { id: helper.getIdFromMention(args[3]) }
                 // console.log(args[3])
                 // console.log(emoji)
 
@@ -160,14 +155,20 @@ function checkCommandArguments(args) {
             // Check for args[1] and args[2]
             if (!args[1] || !args[2] || !args[3]) return false
             else {
+                // Variables
+                let validArgs1 = false
                 // Check for args[1]
                 for (i of Object.keys(config.commands.set.roles)) {
-                    if (Object.values(config.commands.set.roles[i]).includes(args[1])) return true
+                    if (Object.values(config.commands.set.roles[i]).includes(args[1])) {
+                        validArgs1 = true
+                        break
+                    }
                 }
-                // TODO: Check uf args[2] is valid role
-                // TODO: Check if args[3] is valid URL or emoji ID
+                if (!validArgs1) return false
+                // Check for valid role and valid emoji
+                if (!helper.getIdFromMention(args[2]) || !helper.getIdFromMention(args[3])) return false
             }
-            return false
+            return true
         case 'trusted':
         case 'developer':
             // Check for args[1]

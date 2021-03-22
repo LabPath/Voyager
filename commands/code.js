@@ -137,7 +137,7 @@ function generateCode(args) {
 }
 
 // Show embed with info and ask to update or delete or quit
-async function showCode(message, description, code, args, dbGuild) { // TODO: make this a helper function. As well as all functions that rely on waiting for input.
+async function showCode(message, description, code, args, dbGuild) { // TODO: Make this a helper function. As well as all functions that rely on waiting for input.
     // Variables
     const filter = (reaction, user) => {
         if (user.id === message.author.id && (reaction.emoji.name === '🔄' || reaction.emoji.name === '❌' || reaction.emoji.name === '🇶' || reaction.emoji.name === '🇵')) return true
@@ -286,9 +286,19 @@ async function sendNotification(message, code) {
 
     // Iterate over all user
     for (let i = 0; i < users.data.length; i++) {
-        // Send redeem message
-        message.client.users.fetch(users.data[i].discord_id, false).then((user) => {
-            user.send(`A new code \`${code.data.code}\` has arrived (expires \`${code.data.expiration_date}\`)! Copy paste the following message so I can redeem it for you:\n\`\`\`\n@Voyager - DEV#5810 redeem ${code.data.code}\`\`\``)
-        })
+        message.client.users.fetch(users.data[i].discord_id, false)
+            .then((user) => {
+                // Send DM with redeem info
+                if (users.data[i].afk.notify)
+                    user.send(`A new code \`${code.data.code}\` has arrived (expires \`${code.data.expiration_date}\`)! Copy paste the following message so I can redeem it for you:\n\`\`\`\n${process.env.VOYAGER_PREFIX} redeem ${code.data.code}\`\`\`\nIf you do not wish to get notified, feel free to edit/delete your user info with \`${process.env.VOYAGER_PREFIX} user\`.`)
+            })
+            .catch((err) => {
+                // Error
+                if (err.message == 'Unknown User') {
+                    // Delete user from DB
+                    controllerUsers.delete({ _id: users.data[i]._id })
+                }
+                else console.log(err) // TODO: Send to logs channel
+            })
     }
 }

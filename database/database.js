@@ -4,6 +4,8 @@ const mongoose = require('mongoose')
 // Require: Libs
 const echo = require('../lib/echo')
 
+// TODO: Update all controllers for PUT and DELETE to use findOneAndACTION instead of findByIdAndACTION
+
 // Fix mongoose deprecate warnings (https://mongoosejs.com/docs/deprecations.html)
 mongoose.set('useNewUrlParser', true)
 mongoose.set('useFindAndModify', false)
