@@ -178,7 +178,7 @@ client.on('message', async function (message) {
 
                 // Check for role_id and developers
                 if (!dbGuild.data.role_id) body.role_id = voyagerRoleId
-                if (!dbGuild.data.developers.length.includes(message.guild.ownerID)) {
+                if (!dbGuild.data.developers.includes(message.guild.ownerID)) {
                     body.developers = dbGuild.data.developers
                     body.developers.push(message.guild.ownerID)
                 }
