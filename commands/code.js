@@ -35,12 +35,6 @@ module.exports = {
         if (!checkCommandArguments(args))
             return message.channel.send(config.texts.wrongCommandUsage)
 
-        // A ideia e user code <code> <date> <emoji> <amount> <emoji> <amount> <emoji2> <amount2>
-        // Trusted users podem tambem usar isto para criar codigos novos
-        // Codigos novos sao gravados na base de dados
-        // Sempre que e usado este command, o bot cria a informacao no #redemption-codes
-        // Sempre que e usado este command, o bot manda DM a quem disse que queria receber DM a dizer "Run `@Voyager <code>` for free goodies! Expires on <date>."
-
         // Check if code exists in DB
         let code = await controllerCodes.getOne({ code: args[0] })
         if ('err' in code) {
