@@ -289,8 +289,17 @@ async function sendNotification(message, code) {
         message.client.users.fetch(users.data[i].discord_id, false)
             .then((user) => {
                 // Send DM with redeem info
-                if (users.data[i].afk.notify)
-                    user.send(`A new code \`${code.data.code}\` has arrived (expires \`${code.data.expiration_date}\`)! Copy paste the following message so I can redeem it for you:\n\`\`\`\n${process.env.VOYAGER_PREFIX} redeem ${code.data.code}\`\`\`\nIf you do not wish to get notified, feel free to edit/delete your user info with \`${process.env.VOYAGER_PREFIX} user\`.`)
+                if (users.data[i].afk.notify) {
+                    // Variables
+                    let message = `New code \`${code.data.code}\` available!\n`
+                    message += `${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}\n`
+                    message +=`Should I redeem \`${code.data.code}\` for you? Let me know by mentioning me and writing the following:`
+
+                    // Send messages
+                    user.send(message)
+                    user.send(`\`\`\`\nredeem ${code.data.code}\`\`\``)
+                    // TODO: Create a FAQ about the bot and have there: user.send(`If you do not wish to get notified, feel free to edit/delete your user info with \`${process.env.VOYAGER_PREFIX} user\`.`)
+                }
             })
             .catch((err) => {
                 // Error

@@ -26,62 +26,6 @@ controllerStat.getOne().then(async (stat) => {
     else if (stat.code == 200) dbStats = stat
 })
 
-/**
- * 38536241 {}
- * 8582007 {}
- * 8997329 {}
- * Logout 8997329 {undefined}
- * Logout 8997329 {undefined}
- * Logout 8997329 {undefined}
- * Verification Mail 8997329 {defined}
- * Verification Code 8997329 {defined}
- * Users 8997329 {defined}
- * ----
- * When Zeb got asked to send his verification, tester got told Zebs UID is out of seconds
- * Zeb's Tester 12947357 {}
- * Zebiano 38536241 {}
- * Logout Zebiano 38536241 {undefined}
- * Verification Mail Zebiano 38536241 {defined}
- * Logout Zeb's Tester 38536241 {undefined}
- * ----
- * Quickly react first Zeb then Tester.
- * Zebiano 38536241 {}
- * Zeb's Tester 12947357 {}
- * Logout Zebiano 12947357 {undefined}
- * Verification Mail Zebiano 12947357 {defined}
- * logout Zeb's Tester 12947357 {undefined}
- * ----
- * Quickly react first Zeb then Tester. When Zeb got asked to send his verification, tester got told hes out of seconds
- * Zebiano 38536241 {}
- * Zeb's Tester 12947357 {}
- * Logout Zebiano 12947357 {undefined}
- * Verification Mail Zebiano 12947357 {defined}
- * Logout Zeb's Tester 12947357 {undefined}
- * ----
- * Quickly react first Zeb then Tester. When Zeb got asked to send his verification, tester got told hes out of seconds
- * Zebiano 38536241 {}
- * Zeb's Tester 12947357 {}
- * Logout Zebiano 12947357 {undefined}
- * Verification Mail Zebiano 12947357 {defined}
- * Logout Zeb's Tester 12947357 {undefined}
- * ----
- * React for Zeb and wait for verification code message before reacting on Tester.
- * When Zeb got asked to send his verification and after tester reacting, tester got told hes out of seconds.
- * Tester UID is actually on cooldown. Though Zebs isn't.
- * Zebiano 38536241 {}
- * Zeb's Tester 12947357 {}
- * Logout Zebiano 12947357 {undefined}
- * Verification Mail Zebiano 12947357 {defined}
- * Logout Zeb's Tester 12947357 {undefined}
- * ---
- * From the tests above, I've come to the conclusion i (UIDs) are not getting tracked correctly.
- * The i (UID) being used is always the last one from reacting with the ready emoji.
- * ----
- * I think I fixed it!
- * Using for (i of array) was messing up and i was being passed onto other "instances"
- * Though using for (let i = 0; i < array; i++) and then array[i] seems to work
- */
-
 // Exports
 module.exports = {
     name: 'redeem',
@@ -404,6 +348,9 @@ async function redeemCode(cookieJar, user, args) {
         }
     }
 
+    // Add end of code block
+    description += '```'
+
     // Delete codes from DB that have expired
     // TODO: Send message to logs channel
     for (let i = 0; i < arrayExpired.length; i++) {
@@ -419,9 +366,6 @@ async function redeemCode(cookieJar, user, args) {
                 })
             })
     }
-
-    // Add end of code block
-    description += '}```'
 
     // Return description
     return description

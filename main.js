@@ -77,6 +77,7 @@ client.once('ready', async function () {
 
     // Events only fire whenever anything has been done in the server.
     // This could be posting a message, reacting to a message other than the role embed, or reacting twice to a single emoji on the role embed.
+    // TODO: I think it has something to do with what server is first/second/etc saved in the database? Something like that. But definitely one server works instantly and the other only after updating.
     // Event messageReactionAdd
     client.on('messageReactionAdd', async function (reaction, user) {
         // Check for bot as author

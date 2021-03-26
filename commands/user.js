@@ -91,7 +91,10 @@ async function createUser(message, user) {
             return message.channel.send(config.texts.generalError)
         }
         // Send embed
-        else message.channel.send(embeds.simpleFooter(config.colors.success, config.texts.user.successCreatingNew, description))
+        else {
+            await message.channel.send(embeds.simpleFooter(config.colors.success, config.texts.user.successCreatingNew, description))
+            message.channel.send(`If you ever want to update/delete your user information, run \`@Voyager user\` again!`).then((msg) => { msg.pin() })
+        }
     }
 }
 
