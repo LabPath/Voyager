@@ -51,15 +51,23 @@ client.once('ready', async function () {
     // Set activity
     await client.user.setActivity(`v${package.version}`, { type: 'PLAYING' })
 
-    // Run a subreddit check every 30 mins
+    helper.checkAfkGuideMaps(client)
+
+    // Run a r/Lab_path check every 15 mins
     setInterval(() => {
         // Change activity
         if (client.user.presence.activities[0].type == 'PLAYING') client.user.setActivity('r/Lab_path', { type: 'WATCHING' })
         else if (client.user.presence.activities[0].type == 'WATCHING') client.user.setActivity(`v${package.version}`, { type: 'PLAYING' })
 
-        // Check for latest subreddit post
-        helper.checkSubreddits(client)
-    }, config.reddit.lab_path.checkInterval)
+        // Check for latest Dismal and Lab Maps
+        helper.checkLabMaps(client)
+    }, config.timings.reddit.lab_path)
+
+    // Run a r/afkarena check every 3 hours and 10 mins
+    setInterval(() => {
+        // Check for latest afk.guide maintainer post with flair "Guide"
+        helper.checkAfkGuideMaps(client)
+    }, config.timings.reddit.afkarena)
 
     // Get database Guilds
     let dbGuilds = await controllerGuild.get()
