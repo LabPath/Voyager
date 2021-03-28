@@ -75,7 +75,10 @@
         }
     },
     "links": {
-        "reddit": "http://www.reddit.com/r/lab_path/new.json?limit=5",
+        "reddit": {
+            "labPath":  "http://www.reddit.com/r/lab_path/new.json?limit=5",
+            "afkarenaAfkGuide":  "https://www.reddit.com/r/afkarena/search.json?q=author:datguywind flair:Guide&limit=1"
+        },
         "redeem": {
             "logout": "https://cdkey.lilith.com/api/logout?uid=",
             "sendMail": "https://cdkey.lilith.com/api/send-mail",
@@ -85,7 +88,11 @@
         }
     },
     "timings": {
-        "msgDelete": 5000
+        "msgDelete": 5000,
+        "reddit": {
+            "lab_path": 900000,
+            "afkarena": 11400000
+        }
     },
     "colors": {
         "blue": "3e8ed4",
@@ -102,6 +109,7 @@
         "outOfTime": "The operation has been cancelled due to inactivity.",
         "noCodesChannelSet": "No `codes` channel set! Please add one to your server with `set channel codes`.",
         "noCodesRoleSet": "No `redemption_codes` role set! Please add one to your server with `set role codes`.",
+        "newAfkGuidePost": "AFK.guide maintainer u/datguywind has made a new post:",
         "user": {
             "successCreatingNew": "Successfully saved the following:",
             "successUpdating": "Successfully updated your info:",
@@ -114,11 +122,6 @@
             "successFound": "Found the following info:",
             "successUpdating": "Successfully updated to:",
             "alreadyPublished": "That code has already been published!"
-        }
-    },
-    "reddit": {
-        "lab_path": {
-            "checkInterval": 900000
         }
     },
     "creators": {
