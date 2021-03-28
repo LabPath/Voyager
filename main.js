@@ -140,7 +140,7 @@ client.on('message', async function (message) {
     if (message.content == process.env.VOYAGER_PREFIX) return message.channel.send(`Use \`@Voyager help\` for a list of commands.`)
 
     // If message starts with bot prefix or Voyager role and message.author is NOT Voyager 
-    if (message.author.id != process.env.VOYAGER_CLIENT_ID && (message.content.startsWith(process.env.VOYAGER_PREFIX) || message.content.startsWith(helper.getRoleAsMentionFromId(voyagerRoleId)))) {
+    if (message.author.id != process.env.VOYAGER_CLIENT_ID && (message.content.startsWith(process.env.VOYAGER_PREFIX) || message.content.startsWith(process.env.VOYAGER_PREFIX2) || message.content.startsWith(helper.getRoleAsMentionFromId(voyagerRoleId)))) {
         // Variables
         let dbGuild = null
         const args = message.content.slice(process.env.VOYAGER_PREFIX.length).trim().split(/ +/)

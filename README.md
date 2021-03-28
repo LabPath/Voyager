@@ -44,6 +44,7 @@ The environment file has various variables that Voyager uses:
 | `VOYAGER_TOKEN`     | The Token given by Discord. You can get it [here](https://discord.com/developers/applications/804537849747734578/bot).     |
 | `VOYAGER_CLIENT_ID` | The Client ID given by Discord. You can get it [here](https://discord.com/developers/applications/804537849747734578/bot). |
 | `VOYAGER_PREFIX`    | The bot prefix.                                                                                                            |
+| `VOYAGER_PREFIX2`   | A second bot prefix.                                                                                                       |
 | `DB_USER`           | Database user name.                                                                                                        |
 | `DB_PASSWORD`       | Database password.                                                                                                         |
 | `DB_NAME`           | Database name.                                                                                                             |
@@ -53,6 +54,7 @@ Example `.env` file:
 VOYAGER_TOKEN=KLJAGN876WQ34M98UWSEF9O7J8WYM3RMY8O9SHEF
 VOYAGER_CLIENT_ID=123456789456123
 VOYAGER_PREFIX=<@!123456789456123>
+VOYAGER_PREFIX2=<@123456789456123>
 VOYAGER_DB_USER=db_username
 VOYAGER_DB_PASSWORD=db_password
 VOYAGER_DB_NAME=db_name

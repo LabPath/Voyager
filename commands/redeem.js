@@ -352,19 +352,25 @@ async function redeemCode(cookieJar, user, args) {
     description += '```'
 
     // Delete codes from DB that have expired
-    // TODO: Send message to logs channel
     for (let i = 0; i < arrayExpired.length; i++) {
-        controllerCodes.delete({ code: arrayExpired[i] })
+        // Get code
+        const codeToBeDeleted = controllerCodes.getOne({ code: arrayExpired[i] })
+        // If exists
+        if (codeToBeDeleted.code == 200) {
+            // Delete code
+            controllerCodes.delete({ code: arrayExpired[i] })
+            // TODO: Send message to logs channel
             .then((code) => {
                 message.client.users.fetch(config.creators.Zebiano, false).then((user) => {
                     user.send(`Deleted redemption code \`${arrayExpired[i]}\` because it has expired.`)
                 })
             })
-            .catch((err) => {
-                message.client.users.fetch(config.creators.Zebiano, false).then((user) => {
-                    user.send(`Tried to delete redemption code \`${arrayExpired[i]}\` because it has expired, but encountered an error: ${err}`)
+                .catch((err) => {
+                    message.client.users.fetch(config.creators.Zebiano, false).then((user) => {
+                        user.send(`Tried to delete redemption code \`${arrayExpired[i]}\` because it has expired, but encountered an error: ${err}`)
+                    })
                 })
-            })
+        }
     }
 
     // Return description

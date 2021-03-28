@@ -36,7 +36,7 @@
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "fs": "0.0.1-security",
-    "mongoose": "^5.11.19",
+    "mongoose": "^5.12.2",
     "tough-cookie": "^4.0.0"
   }
 }
