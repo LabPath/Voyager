@@ -51,8 +51,6 @@ client.once('ready', async function () {
     // Set activity
     await client.user.setActivity(`v${package.version}`, { type: 'PLAYING' })
 
-    helper.checkAfkGuideMaps(client)
-
     // Run a r/Lab_path check every 15 mins
     setInterval(() => {
         // Change activity

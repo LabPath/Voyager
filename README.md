@@ -148,5 +148,3 @@ message.channel.send(exampleEmbed)
 
 # Database
 Voyager uses MongoDB as its database of choice, which is hosted at mongoDB atlas (AWS in this case). There's a **max of 500MB** free usable space. Anything related to the database should be inside the `database` folder. If you're a developer and want to have access to the DB through the Web (using Atlas), please create an account [here](https://account.mongodb.com/account/register) and ask @Zebiano for an invite.
-
-* `Guild`: Stores various info about every guild the bot is in.
