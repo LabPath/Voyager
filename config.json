@@ -121,7 +121,8 @@
             "successCreatingNew": "Successfully saved the following:",
             "successFound": "Found the following info:",
             "successUpdating": "Successfully updated to:",
-            "alreadyPublished": "That code has already been published!"
+            "alreadyPublished": "That code has already been published!",
+            "codeDoesntExistYet": "That code is not yet in my Database!"
         }
     },
     "creators": {

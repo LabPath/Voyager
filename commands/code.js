@@ -44,6 +44,14 @@ module.exports = {
         }
         // Code does not exist, create new one
         else if (code.code == 404) {
+            // Check for args
+            if (args[1]) {
+                // Check for args[>1]
+                if (!args[2] || !args[3]) return message.channel.send(config.texts.code.codeDoesntExistYet)
+                // Check for Emoji
+                else if (!helper.getIdFromMention(args[2])) return message.channel.send(config.texts.code.codeDoesntExistYet)
+            } else return message.channel.send(config.texts.code.codeDoesntExistYet)
+
             // Create new code
             code = await controllerCodes.post(generateCode(args))
             if ('err' in code) {
@@ -293,7 +301,7 @@ async function sendNotification(message, code) {
                     // Variables
                     let message = `New code \`${code.data.code}\` available!\n`
                     message += `${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}\n`
-                    message +=`Should I redeem \`${code.data.code}\` for you? Let me know by mentioning me and writing the following:`
+                    message += `Should I redeem \`${code.data.code}\` for you? Let me know by mentioning me and writing the following:`
 
                     // Send messages
                     user.send(message)
