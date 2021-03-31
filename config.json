@@ -105,6 +105,7 @@
         "userLacksPerms": "You lack permissions!",
         "wrongChannel": "I cannot do that here!",
         "botLacksPerms": "I don't have enough permissions to do that! Click here to grant me the necessary permissions:",
+        "wrongServer": "I cannot do that in this server!",
         "wrongCommandUsage": "Wrong command usage!",
         "outOfTime": "The operation has been cancelled due to inactivity.",
         "noCodesChannelSet": "No `codes` channel set! Please add one to your server with `set channel codes`.",
@@ -122,7 +123,7 @@
             "successFound": "Found the following info:",
             "successUpdating": "Successfully updated to:",
             "alreadyPublished": "That code has already been published!",
-            "codeDoesntExistYet": "That code is not yet in my Database!"
+            "codeDoesNotExistYet": "That code is not yet in my Database!"
         }
     },
     "creators": {

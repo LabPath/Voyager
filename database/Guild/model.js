@@ -9,7 +9,8 @@ const Guild = mongoose.model('Guilds', new mongoose.Schema({
     developers: Array,
     trusted: Array,
     roles: Array, // Entries for this are inside the config.json file (commands.set.roles) // TODO: Change this to an object
-    channels: Object // Entries for this are inside the config.json file (commands.set.channels)
+    channels: Object, // Entries for this are inside the config.json file (commands.set.channels)
+    codes: Object
 }))
 
 // Exports
