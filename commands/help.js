@@ -60,6 +60,7 @@ module.exports = {
             description += `**Usage:** \`@Voyager ${command.help.usage}\`\n`
             if (command.help.example) description += `**Example:** \`@Voyager ${command.help.example}\`\n`
 
+            // Create embed
             embed = embeds.simpleFooter(config.colors.blue, `Command \`${command.name}\``, description)
 
             // Add legend

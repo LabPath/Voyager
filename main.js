@@ -122,10 +122,10 @@ client.on('guildDelete', async function (guild) {
     // Remove guild from Database
     if (dbGuild.code != 404 || !'err' in dbGuild) {
         // Remove reaction embed
-        if (dbGuild.data.message_reaction_id) {
+        if (dbGuild.data.message_reaction_id && dbGuild.data.channels && dbGuild.data.channels.roles) {
             const msg = await client.channels.cache
                 .get(dbGuild.data.channels.roles).messages.fetch(dbGuild.data.message_reaction_id)
-                .catch(async err => { console.log(err) }) // TODO: This catch does not at all work as intended.
+                .catch(async err => { await console.log(err) })
             msg.delete()
         }
 

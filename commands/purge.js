@@ -56,7 +56,7 @@ async function deleteMessages(channel, n) {
     // Clone channel and delete old channel
     if (n == 'all') {
         // Clone channel
-        const newChannel = await channel.clone()
+        await channel.clone()
 
         // Delete old channel
         channel.delete() // TODO: Before deleting maybe check if channel.id equals any dbGuild.channels.id 

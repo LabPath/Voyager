@@ -50,6 +50,7 @@ module.exports = {
 
         // Check if code exists in DB
         let code = await controllerCodes.getOne({ code: args[0] })
+        helper.log(message.client, dbGuild.data.channels.logs, 'test')
         if ('err' in code) {
             echo.error(`Getting Code. Code ${code.code}.`)
             echo.error(code.err)
@@ -86,7 +87,7 @@ module.exports = {
                     code = await publishCode(message, code, dbGuild)
 
                     // Send notification to users
-                    if (code) sendNotification(message, code)
+                    if (code) sendNotification(message, code, dbGuild)
                 }
             }
         }
@@ -168,7 +169,7 @@ async function showCode(message, description, code, args, dbGuild) { // TODO: Ma
                         code = await publishCode(message, code, dbGuild)
 
                         // Send notification to users
-                        if (code) sendNotification(message, code)
+                        if (code) sendNotification(message, code, dbGuild)
                     } else message.channel.send(config.texts.code.alreadyPublished)
                 }
                 // Quit
@@ -327,7 +328,7 @@ async function publishCode(message, code, dbGuild) {
 }
 
 // Send a DM notification to every user with notify = true
-async function sendNotification(message, code) {
+async function sendNotification(message, code, dbGuild) {
     // Variables
     const users = await controllerUsers.get()
 
@@ -353,7 +354,10 @@ async function sendNotification(message, code) {
                     // Delete user from DB
                     controllerUsers.delete({ _id: users.data[i]._id })
                 }
-                else console.log(err) // TODO: Send to logs channel
+                else {
+                    console.log(err)
+                    if (dbGuild.data.channels && dbGuild.data.channels.logs) helper.log(message.client, dbGuild.data.channels.logs, err)
+                }
             })
     }
 }
