@@ -86,15 +86,23 @@ module.exports = {
     aliases: ['alias1', 'alias2'],
     permissions: ['PERMISSION1', 'PERMISSION2'],
     devOnly: false,
+    trusted: false,
     needsDatabaseGuild: false,
+    allowedInServers: ['server_id1', 'server_id2'],
     channelTypes: ['dm', 'text', 'news'],
     execute(message, args, dbGuild) {
+        // Check if server has permission to run command
+        if (!this.allowedInServers.includes(message.guild.id))
+            return message.channel.send(config.texts.wrongServer)
         // Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)
         if (objectPermissions.necessary.length != 0)
             return message.channel.send(helper.generatePermissionLink(objectPermissions, message))
         // If devOnly == true and user has permissions
         if (this.devOnly && !dbGuild.developers.includes(message.author.id))
+            return message.channel.send(config.texts.userLacksPerms)
+            // If trusted == true and user has permissions
+        if (this.trusted && !dbGuild.data.trusted.includes(message.author.id) && !dbGuild.data.developers.includes(message.author.id))
             return message.channel.send(config.texts.userLacksPerms)
         // Check if in correct channel type
         if (!helper.checkChannelType(message, this.channelTypes))

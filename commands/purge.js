@@ -7,6 +7,14 @@ const config = require('../config.json')
 module.exports = {
     name: 'clear',
     aliases: ['del', 'delete', 'purge'],
+    help: {
+        isVisible: false,
+        name: 'purge',
+        title: 'Delete messages that are no older than 2 weeks.',
+        detailedInfo: 'Delete messages from a channel. Only works on servers.\nYou can either delete an amount of messages, or delete every message by cloning the channel and deleting the old one.',
+        usage: 'del (<amount>|all)',
+        example: 'del 5'
+    },
     permissions: [],
     userPermissions: ['MANAGE_MESSAGES'],
     devOnly: false,

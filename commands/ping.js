@@ -9,6 +9,13 @@ const config = require('../config.json')
 module.exports = {
     name: 'ping',
     aliases: [],
+    help: {
+        isVisible: false,
+        name: 'ping',
+        title: 'Ping me and get an answer.',
+        detailedInfo: 'Ping me and I\'ll ping you back.',
+        usage: 'ping'
+    },
     permissions: [],
     devOnly: false,
     needsDatabaseGuild: false,

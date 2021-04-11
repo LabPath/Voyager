@@ -30,6 +30,14 @@ controllerStat.getOne().then(async (stat) => {
 module.exports = {
     name: 'redeem',
     aliases: [],
+    help: {
+        isVisible: true,
+        name: 'redeem',
+        title: 'Redeem redemption codes.',
+        detailedInfo: 'Ask me to redeem code(s) for you. Necessary to have created a `user` account already with `@Voyager user`.',
+        usage: 'redeem i<code>',
+        example: 'redeem d14m0nd5 311j4hw00d xmasl00t'
+    },
     permissions: [],
     devOnly: false,
     needsDatabaseGuild: false,

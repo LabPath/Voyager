@@ -10,6 +10,13 @@ const controllerUser = require('../database/User/controller')
 module.exports = {
     name: 'user',
     aliases: [],
+    help: {
+        isVisible: true,
+        name: 'user',
+        title: 'Change your user settings.',
+        detailedInfo: 'Change your user settings. You can either update or delete your info. Voyager only stores your Discord ID and your in-game UID.',
+        usage: 'user'
+    },
     permissions: [],
     devOnly: false,
     needsDatabaseGuild: false,

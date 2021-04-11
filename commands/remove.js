@@ -10,6 +10,14 @@ const controllerGuild = require('../database/Guild/controller')
 module.exports = {
     name: 'rem',
     aliases: ['remove'],
+    help: {
+        isVisible: false,
+        name: 'remove',
+        title: 'Remove various things.',
+        detailedInfo: 'Remove various details for the server, like for example channels, roles, trusted and developer users.',
+        usage: 'rem channel|role|trusted|developer',
+        example: 'rem channel roles'
+    },
     permissions: ['MANAGE_ROLES', 'MANAGE_EMOJIS'],
     devOnly: true,
     needsDatabaseGuild: true,

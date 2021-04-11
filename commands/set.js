@@ -11,6 +11,14 @@ const controllerGuild = require('../database/Guild/controller')
 module.exports = {
     name: 'set',
     aliases: [],
+    help: {
+        isVisible: false,
+        name: 'set',
+        title: 'Set various things.',
+        detailedInfo: 'Set various details for the server, like for example channels, roles, trusted and developer users.',
+        usage: 'set channel|role|trusted|developer',
+        example: 'set channel roles'
+    },
     permissions: ['MANAGE_ROLES', 'MANAGE_EMOJIS'],
     devOnly: true,
     needsDatabaseGuild: true,

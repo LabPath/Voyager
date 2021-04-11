@@ -12,6 +12,14 @@ const controllerGuild = require('../database/Guild/controller')
 module.exports = {
     name: 'code',
     aliases: [],
+    help: {
+        isVisible: false,
+        name: 'code',
+        title: 'Change redemption codes for the database and codes channel.',
+        detailedInfo: 'Add new redemption code to database in case <code> doesn\'t exists yet. If it exists, show interactive embed to update, publish or delete code.\nOnly trusted users are allowed to run this command and it only works on certain servers.',
+        usage: 'code <code> ?("<expiration_date>" i(<emoji> <amount>))',
+        example: 'code uf4shqjngq "05/05/2021 23:59 UTC" :emoji1: 500 :emoji2: 100K'
+    },
     permissions: [],
     devOnly: false,
     trusted: true,
@@ -19,7 +27,7 @@ module.exports = {
     allowedInServers: ['669974531959554057', '419580897189167116'],
     channelTypes: ['text', 'news'],
     async execute(message, args, dbGuild) {
-        // Check for server permissions
+        // Check if server has permission to run command
         if (!this.allowedInServers.includes(message.guild.id))
             return message.channel.send(config.texts.wrongServer)
         // Check for Bot permissions
@@ -337,7 +345,6 @@ async function sendNotification(message, code) {
                     // Send messages
                     user.send(message)
                     user.send(`\`\`\`\nredeem ${code.data.code}\`\`\``)
-                    // TODO: Create a FAQ about the bot and have there: user.send(`If you do not wish to get notified, feel free to edit/delete your user info with \`${process.env.VOYAGER_PREFIX} user\`.`)
                 }
             })
             .catch((err) => {
