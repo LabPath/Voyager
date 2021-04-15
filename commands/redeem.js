@@ -173,26 +173,18 @@ async function askVerificationCode(message) {
 
 // Ask if user is ready for verification code
 async function askIfReady(message, i) {
-    // Filter
-    const filter = (reaction, user) => {
-        if (user.id === message.author.id && (reaction.emoji.name === '👍' || reaction.emoji.name === '👎')) return true
+    // Ask user if they're sure
+    const answer = await helper.askYesOrNo(message, `React when you're ready to receive the verification code for account \`${i}\`.`, 20000)
+
+    // If out of time
+    if (answer == false) {
+        message.channel.send(`No problem, just run \`@Voyager redeem ${i}\` when you're ready!`)
         return false
     }
-
-    // Ask
-    return await message.channel.send(`React when you're ready to receive the verification code for account \`${i}\`.`).then((msg) => {
-        msg.react('👍')
-        msg.react('👎')
-        return msg.awaitReactions(filter, { max: 1, time: 20000, errors: ['time'] })
-            .then(async collected => {
-                if (collected.first()._emoji.name == '👍') return true
-                else return false
-            })
-            .catch(collected => {
-                msg.channel.send(config.texts.outOfTime)
-                return false
-            })
-    })
+    else if (answer == 'out_of_time') {
+        message.channel.send(config.texts.outOfTime)
+        return false
+    } else return answer
 }
 
 // Logs user out from redemption codes website

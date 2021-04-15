@@ -124,7 +124,7 @@ async function showUser(message, user) {
                 // Update
                 if (collected.first()._emoji.name == '🔄') createUser(message, user)
                 // Delete
-                else if (collected.first()._emoji.name == '❌') deleteUser(message, user)
+                else if (collected.first()._emoji.name == '❌') await deleteUser(message, user)
                 // Quit
                 else if (collected.first()._emoji.name == '🇶') message.channel.send('Got it, quitting.')
             })
@@ -135,41 +135,29 @@ async function showUser(message, user) {
 }
 
 // Create new user
-function deleteUser(message, user) {
-    // Filter
-    const filter = response => {
-        if (!response.author.bot) {
-            if (['yes', 'y', 'no', 'n'].includes(response.content.trim().toLowerCase())) return true
-            else {
-                message.channel.send('Invalid entry, either `yes` or `no`. Please try again.')
-                return false
-            }
-        }
-    }
+async function deleteUser(message, user) {
+    // Ask user if they're sure
+    const answer = await helper.askYesOrNo(message, 'Are you sure you want to delete your info?', 20000)
 
-    // Ask if user is sure
-    message.channel.send('Are you sure you want to delete your info? (y/n)').then(() => {
-        message.channel.awaitMessages(filter, { max: 1, time: 20000, errors: ['time'] })
-            .then(async collected => {
-                // Check answer
-                if (['yes', 'y'].includes(collected.first().content.trim().toLowerCase())) {
-                    // Delete user info
-                    user = await controllerUser.delete(user.data._id)
-                    if ('err' in user) {
-                        echo.error(`Deleting User. Code ${user.code}.`)
-                        echo.error(user.err)
-                        return message.channel.send(config.texts.generalError)
-                    }
-                    // Send message
-                    else message.channel.send(config.texts.user.successDelete)
-                }
-                else message.channel.send('That makes me happy! I did not delete your info.')
-            })
-            .catch(collected => {
-                message.channel.send(config.texts.outOfTime)
-                return false
-            })
-    })
+    // If true
+    if (answer == true) {
+        // Delete user info
+        user = await controllerUser.delete(user.data._id)
+        if ('err' in user) {
+            echo.error(`Deleting User. Code ${user.code}.`)
+            echo.error(user.err)
+            return message.channel.send(config.texts.generalError)
+        }
+        // Send message
+        else message.channel.send(config.texts.user.successDelete)
+    }
+    // If false
+    else if (answer == false) message.channel.send('That makes me happy! I did not delete your info.')
+    // If out of time
+    else if (answer == 'out_of_time') {
+        message.channel.send(config.texts.outOfTime)
+        return false
+    }
 }
 
 // Ask for in-game UID
@@ -209,27 +197,20 @@ async function askUID(message, body) {
 
 // Ask if user wants bot to send a message to user whenever a new code is available
 async function askNotify(message, body) {
-    // Filter
-    const filter = (reaction, user) => {
-        if (user.id === message.author.id && (reaction.emoji.name === '👍' || reaction.emoji.name === '👎')) return true
+    // Ask user if they're sure
+    const answer = await helper.askYesOrNo(message, config.commands.user.questions[1], 20000)
+
+    // If true
+    if (answer == true) {
+        // Save to body
+        body.afk.notify = true
+        return body
+    }
+    // If false
+    else if (answer == false) return body
+    // If out of time
+    else if (answer == 'out_of_time') {
+        message.channel.send(config.texts.outOfTime)
         return false
     }
-
-    // Ask
-    return await message.channel.send(config.commands.user.questions[1]).then((msg) => {
-        msg.react('👍')
-        msg.react('👎')
-        return msg.awaitReactions(filter, { max: 1, time: 20000, errors: ['time'] })
-            .then(async collected => {
-                // Save to body
-                if (collected.first()._emoji.name == '👍') body.afk.notify = true
-
-                // Return
-                return body
-            })
-            .catch(collected => {
-                msg.channel.send(config.texts.outOfTime)
-                return false
-            })
-    })
 }

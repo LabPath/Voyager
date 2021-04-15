@@ -118,7 +118,7 @@
             "successCreatingNew": "Successfully saved the following:",
             "successUpdating": "Successfully updated your info:",
             "successFound": "Found the following info about you:",
-            "successDelete": "Successfully deleted your info! Sad to see you go."
+            "successDelete": "Successfully deleted your info! Feel free to delete my pinned message."
         },
         "code": {
             "alreadyExists": "I already have that code in my system, thank you.",

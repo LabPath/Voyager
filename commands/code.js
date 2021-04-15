@@ -245,33 +245,24 @@ async function deleteCode(message, code, dbGuild) {
 
 // Ask user if code is ready to be published
 async function askToPublish(message, code) {
-    // Filter
-    const filter = (reaction, user) => {
-        if (user.id === message.author.id && (reaction.emoji.name === '👍' || reaction.emoji.name === '👎')) return true
+    // Ask user if they're sure
+    const answer = await helper.askYesOrNo(message, config.commands.code.questions[1], 40000)
+
+    // If true
+    if (answer == true) {
+        message.channel.send(`Publishing!`)
+        return true
+    }
+    // If false
+    else if (answer == false) {
+        message.channel.send(`Got it, not publishing. Run \`code ${code.data.code}\` so I can ask you again!`)
         return false
     }
-
-    // Ask
-    return await message.channel.send(config.commands.code.questions[1]).then((msg) => {
-        msg.react('👍')
-        msg.react('👎')
-        return msg.awaitReactions(filter, { max: 1, time: 40000, errors: ['time'] })
-            .then(async collected => {
-                // Save to body
-                if (collected.first()._emoji.name == '👍') {
-                    message.channel.send(`Publishing!`)
-                    return true
-                }
-                else {
-                    message.channel.send(`Got it, not publishing. Run \`code ${code.data.code}\` so I can ask you again!`)
-                    return false
-                }
-            })
-            .catch(collected => {
-                msg.channel.send(config.texts.outOfTime)
-                return false
-            })
-    })
+    // If out of time
+    else if (answer == 'out_of_time') {
+        message.channel.send(config.texts.outOfTime)
+        return false
+    }
 }
 
 // Publish code to channel and send users a notification
