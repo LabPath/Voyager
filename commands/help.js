@@ -19,7 +19,7 @@ module.exports = {
     permissions: [],
     devOnly: false,
     trusted: false,
-    needsDatabaseGuild: false,
+    needsDatabaseGuild: true,
     channelTypes: ['dm', 'text', 'news'],
     execute(message, args, dbGuild) {
         // Check for Bot permissions
@@ -36,7 +36,7 @@ module.exports = {
         if (!helper.checkChannelType(message, this.channelTypes))
             return message.channel.send(config.texts.wrongChannel)
         // Check if arguments are correct
-        if (!checkCommandArguments(args, message))
+        if (!checkCommandArguments(args, message, dbGuild))
             return message.channel.send(config.texts.wrongCommandUsage)
 
         // If user asked for help on a specific command
@@ -76,7 +76,12 @@ module.exports = {
 
             // Iterate commands
             message.client.commands.each((cmd) => {
-                if (cmd.help.isVisible) embed.addField(`\`${cmd.help.name}\``, cmd.help.title, true)
+                // If trusted or developer, show every help command
+                if (dbGuild.data.developers.includes(message.author.id) || dbGuild.data.trusted.includes(message.author.id)) {
+                    embed.addField(`\`${cmd.help.name}\``, cmd.help.title, true)
+                }
+                // Show only isVisible = true commands
+                else if (cmd.help.isVisible) embed.addField(`\`${cmd.help.name}\``, cmd.help.title, true)
             })
 
             // Send embed
@@ -87,13 +92,17 @@ module.exports = {
 
 /* --- Functions --- */
 // Check if arguments are correct
-function checkCommandArguments(args, message) {
+function checkCommandArguments(args, message, dbGuild) {
     // Check for args[0]
     if (args[0]) {
         // Iterate commands
         for (i of message.client.commands.values()) {
-            // TODO: In case trusted/developer/owner bypass the i.help.visible check
-            if (i.help.isVisible && ( i.name == args[0] || i.aliases.includes(args[0]))) return true
+            // If trusted or developer, show every help command
+            if (dbGuild.data.developers.includes(message.author.id) || dbGuild.data.trusted.includes(message.author.id)) {
+                if (i.name == args[0] || i.aliases.includes(args[0])) return true
+            }
+            // Show only isVisible = true commands
+            else if (i.help.isVisible && (i.name == args[0] || i.aliases.includes(args[0]))) return true
         }
         return false
     }

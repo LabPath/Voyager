@@ -189,7 +189,7 @@ function checkCommandArguments(args) {
 
 // Saves channel ID in database as channel
 async function setChannel(dbGuild, type, channelId) {
-    // TODO: IF channel is type 'logs', check how it would work in case bot is in various random guilds!
+    // TODO: If channel is type 'logs', check how it would work in case bot is in various random guilds!
     // Variables
     let body = { channels: dbGuild.data.channels }
 

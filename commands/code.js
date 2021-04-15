@@ -336,12 +336,12 @@ async function sendNotification(message, code, dbGuild) {
                 // Send DM with redeem info
                 if (users.data[i].afk.notify) {
                     // Variables
-                    let message = `New code \`${code.data.code}\` available!\n`
+                    let message = `**New redemption code:** \`${code.data.code}\`\n`
                     message += `${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}\n\n`
 
                     // Send messages
                     user.send(message)
-                    user.send(`Run \`@Voyager redeem ${code.data.code}\` so I can redeem it for you!`)
+                    user.send(`Run \`@Voyager redeem ${code.data.code}\` if you want me to redeem it for you!`)
                 }
             })
             .catch((err) => {

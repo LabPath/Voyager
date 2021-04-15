@@ -58,7 +58,6 @@ client.once('ready', async function () {
         else if (client.user.presence.activities[0].type == 'WATCHING') client.user.setActivity(`v${package.version}`, { type: 'PLAYING' })
 
         // Check for latest Dismal and Lab Maps
-        // TODO: Check if dismal and arcane roles are set before running checkLabMaps()
         helper.checkLabMaps(client)
     }, config.timings.reddit.lab_path)
 

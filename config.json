@@ -70,7 +70,7 @@
         "code": {
             "questions": [
                 "Should I update the info above with the info you gave me?",
-                "Is this redemption code ready to be published to all servers?"
+                "Is this redemption code ready to be published to all servers as well as notify every user?"
             ]
         }
     },
@@ -113,7 +113,7 @@
         "noCodesRoleSet": "No `redemption_codes` role set! Please add one to your server with `set role codes`.",
         "newAfkGuidePost": "AFK.guide maintainer u/datguywind has made a new post:",
         "helpMessage": "In order to issue a command, you need to mention me first!\nFor example **`@Voyager ping`**.\nIf you need help for a specific command, use `@Voyager help <command>`.",
-        "helpMessageLegend": "`?: Optional` `i: Infinite` `<>: Parameter`",
+        "helpMessageLegend": "`?: Optional` `i: Infinite` `<>: Parameter` `\"\": Must be inside quotation marks`",
         "user": {
             "successCreatingNew": "Successfully saved the following:",
             "successUpdating": "Successfully updated your info:",
