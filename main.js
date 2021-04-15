@@ -58,6 +58,7 @@ client.once('ready', async function () {
         else if (client.user.presence.activities[0].type == 'WATCHING') client.user.setActivity(`v${package.version}`, { type: 'PLAYING' })
 
         // Check for latest Dismal and Lab Maps
+        // TODO: Check if dismal and arcane roles are set before running checkLabMaps()
         helper.checkLabMaps(client)
     }, config.timings.reddit.lab_path)
 
@@ -119,17 +120,8 @@ client.on('guildDelete', async function (guild) {
     // Variables
     const dbGuild = await controllerGuild.getOne({ guild_id: guild.id })
 
-    // Remove guild from Database
+    // Delete dbGuild from database
     if (dbGuild.code != 404 || !'err' in dbGuild) {
-        // Remove reaction embed
-        if (dbGuild.data.message_reaction_id && dbGuild.data.channels && dbGuild.data.channels.roles) {
-            const msg = await client.channels.cache
-                .get(dbGuild.data.channels.roles).messages.fetch(dbGuild.data.message_reaction_id)
-                .catch(async err => { await console.log(err) })
-            msg.delete()
-        }
-
-        // Delete dbGuild from database
         await controllerGuild.delete(dbGuild.data._id)
         echo.info(`Left Guild with ID ${dbGuild.data._id}.`)
     }

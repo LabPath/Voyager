@@ -24,7 +24,7 @@ module.exports = {
     devOnly: false,
     trusted: true,
     needsDatabaseGuild: true,
-    allowedInServers: ['669974531959554057', '419580897189167116'],
+    allowedInServers: ['669974531959554057', '419580897189167116', '819372204411715618'],
     channelTypes: ['text', 'news'],
     async execute(message, args, dbGuild) {
         // Check if server has permission to run command
@@ -50,7 +50,7 @@ module.exports = {
 
         // Check if code exists in DB
         let code = await controllerCodes.getOne({ code: args[0] })
-        helper.log(message.client, dbGuild.data.channels.logs, 'test')
+        // helper.log(message.client, dbGuild.data.channels.logs, 'test')
         if ('err' in code) {
             echo.error(`Getting Code. Code ${code.code}.`)
             echo.error(code.err)
@@ -198,10 +198,7 @@ async function updateCode(message, code, args, dbGuild) {
         const description = `${code.data.code}\n${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}`
 
         // Update message in redemption-codes channel
-        const channel = await message.client.channels.cache.get(dbGuild.data.channels.codes)
-        /* channel.messages.fetch(dbGuild.data.codes[code.data.code].codeMsgId)
-            .then(msg => msg.edit(code.data.code))
-            .catch(console.error) */
+        const channel = message.client.channels.cache.get(dbGuild.data.channels.codes)
         channel.messages.fetch(dbGuild.data.codes[code.data.code].rewardsMsgId)
             .then(msg => msg.edit(helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)))
             .catch(console.error)
@@ -314,7 +311,7 @@ async function publishCode(message, code, dbGuild) {
                 dbGuild = await controllerGuild.put(dbGuild.data._id, { codes: codes })
 
                 // Break and return
-                return controllerGuild.put(dbGuild.data._id, {})
+                return code
             }
         }
 
@@ -340,12 +337,11 @@ async function sendNotification(message, code, dbGuild) {
                 if (users.data[i].afk.notify) {
                     // Variables
                     let message = `New code \`${code.data.code}\` available!\n`
-                    message += `${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}\n`
-                    message += `Should I redeem \`${code.data.code}\` for you? Let me know by mentioning me and writing the following:`
+                    message += `${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}\n\n`
 
                     // Send messages
                     user.send(message)
-                    user.send(`\`\`\`\nredeem ${code.data.code}\`\`\``)
+                    user.send(`Run \`@Voyager redeem ${code.data.code}\` so I can redeem it for you!`)
                 }
             })
             .catch((err) => {

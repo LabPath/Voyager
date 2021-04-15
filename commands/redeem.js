@@ -87,36 +87,36 @@ module.exports = {
 
                 // Create new Cookie Jar
                 const cookieJar = new tough.CookieJar()
-                console.log(message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
+                // console.log(message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
 
                 // Ask if user is ready for sending verification code
                 data = await askIfReady(message, user.data.afk.afk_uids[i])
-                console.log(message.author.username, user.data.afk.afk_uids, user.data.afk.afk_uids[0], user.data.afk.afk_uids[i])
+                // console.log(message.author.username, user.data.afk.afk_uids, user.data.afk.afk_uids[0], user.data.afk.afk_uids[i])
 
                 // Logout first
                 if (data) data = await logout(message, cookieJar, user.data.afk.afk_uids[i])
                 else return
-                if (data) console.log('Logout', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
+                // if (data) console.log('Logout', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
 
                 // Send Verification Mail
                 if (data) data = await sendVerificationMail(message, cookieJar, user.data.afk.afk_uids[i])
                 else return
-                if (data) console.log('Verification Mail', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
+                // if (data) console.log('Verification Mail', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
 
                 // Ask for verification Code
                 if (data) verificationCode = await askVerificationCode(message)
                 else return
-                console.log('Verification Code:', data)
+                // console.log('Verification Code:', data)
 
                 // Send Verification Code
                 if (verificationCode) data = await sendVerificationCode(message, cookieJar, user.data.afk.afk_uids[i], verificationCode)
                 else return
-                if (data) console.log('Verification Code', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
+                // if (data) console.log('Verification Code', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
 
                 // Get alt Accounts
                 if (data) data = await getUsersUIDs(message, cookieJar, user.data.afk.afk_uids[i])
                 else return
-                if (data) console.log('Users', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
+                // if (data) console.log('Users', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
 
                 // Set Users
                 if (data) users = data.data.data.users
