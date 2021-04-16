@@ -110,7 +110,7 @@ async function showUser(message, user) {
     // Variables
     let description = `\`\`\`json\nUID: ${user.data.afk.afk_uids}\nNotify: ${user.data.afk.notify}\`\`\`\nDo you want to update or delete it?`
     const filter = (reaction, user) => {
-        if (user.id === message.author.id && (reaction.emoji.name === '🔄' || reaction.emoji.name === '❌' || reaction.emoji.name === '🇶')) return true
+        if (user.id === message.author.id && ['🔄', '❌', '🇶'].includes(reaction.emoji.name)) return true
         return false
     }
 

@@ -16,7 +16,7 @@ module.exports = {
         isVisible: false,
         name: 'code',
         title: 'Change redemption codes for the database and codes channel.',
-        detailedInfo: 'Add new redemption code to database in case <code> doesn\'t exists yet. If it exists, show interactive embed to update, publish or delete code.\nOnly trusted users are allowed to run this command and it only works on certain servers.',
+        detailedInfo: 'Add new redemption code to database in case `<code>` doesn\'t exist yet. If it exists, show interactive embed to update, publish or delete code.\nOnly trusted users are allowed to run this command and it only works on certain servers.',
         usage: 'code <code> ?("<expiration_date>" i(<emoji> <amount>))',
         example: 'code uf4shqjngq "05/05/2021 23:59 UTC" :emoji1: 500 :emoji2: 100K'
     },
@@ -88,6 +88,9 @@ module.exports = {
 
                     // Send notification to users
                     if (code) sendNotification(message, code, dbGuild)
+
+                    // Let user know
+                    message.channel.send(`Done!`)
                 }
             }
         }
@@ -110,11 +113,14 @@ function checkCommandArguments(args, forced) {
     if (!args[0]) return false
     // Check for args[1]
     else if (args[1] || forced) {
-        // Check for args[>1]
-        if (!args[2] || !args[3]) return false
-        // Check for Emoji
-        else if (!helper.getIdFromMention(args[2])) return false
-        else return true
+        // Iterate args
+        for (let i = 2; i < args.length; i += 2) {
+            // Check for args[>1]
+            if (!args[i] || !args[i + 1]) return false
+            // Check for Emoji
+            else if (!helper.getIdFromMention(args[i])) return false
+        }
+        return true
     }
     else return true
 }
@@ -143,10 +149,10 @@ function generateCode(args) {
 }
 
 // Show embed with info and ask to update or delete or quit
-async function showCode(message, description, code, args, dbGuild) { // TODO: Make this a helper function. As well as all functions that rely on waiting for input.
+async function showCode(message, description, code, args, dbGuild) {
     // Variables
     const filter = (reaction, user) => {
-        if (user.id === message.author.id && (reaction.emoji.name === '🔄' || reaction.emoji.name === '❌' || reaction.emoji.name === '🇶' || reaction.emoji.name === '🇵')) return true
+        if (user.id === message.author.id && ['🔄', '❌', '🇶', '🇵'].includes(reaction.emoji.name)) return true
         return false
     }
 
@@ -170,6 +176,9 @@ async function showCode(message, description, code, args, dbGuild) { // TODO: Ma
 
                         // Send notification to users
                         if (code) sendNotification(message, code, dbGuild)
+
+                        // Let user know
+                        message.channel.send(`Done!`)
                     } else message.channel.send(config.texts.code.alreadyPublished)
                 }
                 // Quit
@@ -249,10 +258,7 @@ async function askToPublish(message, code) {
     const answer = await helper.askYesOrNo(message, config.commands.code.questions[1], 40000)
 
     // If true
-    if (answer == true) {
-        message.channel.send(`Publishing!`)
-        return true
-    }
+    if (answer == true) return true
     // If false
     else if (answer == false) {
         message.channel.send(`Got it, not publishing. Run \`code ${code.data.code}\` so I can ask you again!`)
@@ -273,6 +279,8 @@ async function publishCode(message, code, dbGuild) {
         // Get codes role ID
         for (let i = 0; i < dbGuild.data.roles.length; i++) {
             if (dbGuild.data.roles[i]['redemption_codes']) {
+                message.channel.send(`Publishing...`)
+
                 // Variables
                 let codes = {}
                 const channel = message.client.channels.cache.get(dbGuild.data.channels.codes)
