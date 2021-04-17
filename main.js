@@ -152,43 +152,48 @@ client.on('message', async function (message) {
         // Check if command needs dbGuild
         if (command.needsDatabaseGuild || command.devOnly) {
             // Check if in DMs
-            if (message.channel.type == 'dm') return message.channel.send(config.texts.wrongChannel)
-
-            // Get Current Guild
-            dbGuild = await controllerGuild.getOne({ guild_id: message.guild.id })
-
-            // Not Found
-            if (dbGuild.code == 404) {
-                // Create new
-                dbGuild = await controllerGuild.post({ guild_id: message.guild.id, role_id: voyagerRoleId, developers: message.guild.ownerID })
-
-                // Check for error in dbGuild
-                if ('err' in dbGuild) {
-                    echo.error(`Creating Guild. Code ${dbGuild.code}.`)
-                    echo.error(dbGuild.err)
-                    return message.channel.send(config.texts.generalError)
-                } else message.guild.owner.send(`Something has gone wrong on my side, I had to reset all settings for your Guild \`${message.guild.name} - ${message.guild.id}\`. Please set me up again! Sorry for the hassle.`)
+            if (message.channel.type == 'dm') {
+                // In case command help, ignore dbGuild
+                if (command.help.name != 'help') return message.channel.send(config.texts.wrongChannel)
             }
-            // Found
+            // Not in DMs
             else {
-                // Variables
-                let body = {}
+                // Get Current Guild
+                dbGuild = await controllerGuild.getOne({ guild_id: message.guild.id })
 
-                // Check for role_id
-                if (!dbGuild.data.role_id) body.role_id = voyagerRoleId
+                // Not Found
+                if (dbGuild.code == 404) {
+                    // Create new
+                    dbGuild = await controllerGuild.post({ guild_id: message.guild.id, role_id: voyagerRoleId, developers: message.guild.ownerID })
 
-                // Check for developers array
-                if (!dbGuild.data.developers.includes(message.guild.ownerID)) {
-                    body.developers = dbGuild.data.developers
-                    body.developers.push(message.guild.ownerID)
+                    // Check for error in dbGuild
+                    if ('err' in dbGuild) {
+                        echo.error(`Creating Guild. Code ${dbGuild.code}.`)
+                        echo.error(dbGuild.err)
+                        return message.channel.send(config.texts.generalError)
+                    } else message.guild.owner.send(`Something has gone wrong on my side, I had to reset all settings for your Guild \`${message.guild.name} - ${message.guild.id}\`. Please set me up again! Sorry for the hassle.`)
                 }
+                // Found
+                else {
+                    // Variables
+                    let body = {}
 
-                // Check for error in dbGuild
-                dbGuild = await controllerGuild.put(dbGuild.data._id, body)
-                if ('err' in dbGuild) {
-                    echo.error(`Updating Guild. Code ${dbGuild.code}.`)
-                    echo.error(dbGuild.err)
-                    return message.channel.send(config.texts.generalError)
+                    // Check for role_id
+                    if (!dbGuild.data.role_id) body.role_id = voyagerRoleId
+
+                    // Check for developers array
+                    if (!dbGuild.data.developers.includes(message.guild.ownerID)) {
+                        body.developers = dbGuild.data.developers
+                        body.developers.push(message.guild.ownerID)
+                    }
+
+                    // Check for error in dbGuild
+                    dbGuild = await controllerGuild.put(dbGuild.data._id, body)
+                    if ('err' in dbGuild) {
+                        echo.error(`Updating Guild. Code ${dbGuild.code}.`)
+                        echo.error(dbGuild.err)
+                        return message.channel.send(config.texts.generalError)
+                    }
                 }
             }
         }
