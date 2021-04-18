@@ -207,10 +207,12 @@ async function updateCode(message, code, args, dbGuild) {
         const description = `${code.data.code}\n${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}`
 
         // Update message in redemption-codes channel
-        const channel = message.client.channels.cache.get(dbGuild.data.channels.codes)
-        channel.messages.fetch(dbGuild.data.codes[code.data.code].rewardsMsgId)
-            .then(msg => msg.edit(helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)))
-            .catch(console.error)
+        if (code.data.published) {
+            const channel = message.client.channels.cache.get(dbGuild.data.channels.codes)
+            channel.messages.fetch(dbGuild.data.codes[code.data.code].rewardsMsgId)
+                .then(msg => msg.edit(helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)))
+                .catch(console.error)
+        }
 
         // Send embed
         message.channel.send(embeds.simple(config.colors.success, config.texts.code.successUpdating, description))
