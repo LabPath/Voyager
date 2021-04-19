@@ -9,8 +9,7 @@
             "READ_MESSAGE_HISTORY",
             "MENTION_EVERYONE",
             "USE_EXTERNAL_EMOJIS",
-            "ADD_REACTIONS",
-            ""
+            "ADD_REACTIONS"
         ],
         "unnecessary": [
             "PRIORITY_SPEAKER",
