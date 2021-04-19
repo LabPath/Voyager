@@ -50,7 +50,6 @@ module.exports = {
 
         // Check if code exists in DB
         let code = await controllerCodes.getOne({ code: args[0] })
-        // helper.log(message.client, dbGuild.data.channels.logs, 'test')
         if ('err' in code) {
             echo.error(`Getting Code. Code ${code.code}.`)
             echo.error(code.err)
@@ -221,10 +220,11 @@ async function updateCode(message, code, args, dbGuild) {
 
 // Delete redemption code
 async function deleteCode(message, code, dbGuild) {
+    // TODO: Test if it is even possible to delete messages before trying to delete them
     // Variables
     let codes = dbGuild.data.codes
 
-    // Delete messages from reemption codes channel
+    // Delete messages from redemption codes channel
     const channel = await message.client.channels.cache.get(dbGuild.data.channels.codes)
     channel.messages.fetch(dbGuild.data.codes[code.data.code].codeMsgId)
         .then(msg => msg.delete())
@@ -275,7 +275,6 @@ async function askToPublish(message, code) {
 
 // Publish code to channel and send users a notification
 async function publishCode(message, code, dbGuild) {
-    // console.log(dbGuild.data.roles)
     // Check if codes channel is set
     if (dbGuild.data.channels && dbGuild.data.channels.codes) {
         // Get codes role ID
@@ -327,6 +326,7 @@ async function publishCode(message, code, dbGuild) {
 
 // Send a DM notification to every user with notify = true
 async function sendNotification(message, code, dbGuild) {
+    // TODO: Doesn't run in case there's no codes channel set. This should not be the case, as it should be possible to publish a code to all users without needing a codes channel.
     // Variables
     const users = await controllerUsers.get()
 

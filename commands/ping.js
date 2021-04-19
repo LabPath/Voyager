@@ -1,5 +1,4 @@
 // Require: Libs
-const embeds = require('../lib/embeds')
 const helper = require('../lib/helper')
 
 // Require: Files
@@ -33,6 +32,6 @@ module.exports = {
             return message.channel.send(config.texts.wrongChannel)
 
         // Send embed
-        message.channel.send(embeds.simpleFooter(config.colors.blue, 'Pong.', 'This is an example embed with "Pong" set as the title.'))
+        message.channel.send(`Pong.`)
     }
 }
