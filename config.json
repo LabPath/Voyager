@@ -57,7 +57,7 @@
         },
         "user": {
             "questions": [
-                "What is your in-game UID? No need to mention me, just write the UID.\nIf you have various accounts **with different emails**, then separate them with a space. Accounts with the same email are taken in consideration by default already.",
+                "What is your in-game UID? No need to mention me, just write the UID.\nIf you have various accounts **with different emails**, then separate them with a space. Accounts with the same email are taken in consideration by default already, which means only one UID per email account is enough.",
                 "Do you want me to notify you whenever there's a new code available?"
             ]
         },
