@@ -26,7 +26,7 @@ controllerStat.getOne().then(async (stat) => {
     else if (stat.code == 200) dbStats = stat
 })
 
-// TODO: Would be nice to get notified everytime something goes wrong. Can either hardcode to send Zeb a private message, or hardcode to send to a server dedicated to the bot, or idk.
+// TODO: Would be nice to get notified every time something goes wrong. Can either hardcode to send Zeb a private message, or hardcode to send to a server dedicated to the bot, or idk.
 
 // Exports
 module.exports = {

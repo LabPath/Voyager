@@ -59,6 +59,9 @@ client.once('ready', async function () {
 
         // Check for latest Dismal and Lab Maps
         helper.checkLabMaps(client)
+
+        // Clear all active users from commands
+        helper.clearAllActiveUsers(client.commands)
     }, config.timings.reddit.lab_path)
 
     // Run a r/afkarena check every 3 hours and 10 mins
@@ -148,6 +151,9 @@ client.on('message', async function (message) {
         // Check if command exists (with aliases)
         const command = client.commands.get(commandInput) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandInput))
         if (!command) return
+
+        // Check if user is running command
+        if (command.activeUsers && command.activeUsers.includes(message.author.id)) return message.channel.send(config.texts.stillRunningCommand)
 
         // Check if command needs dbGuild
         if (command.needsDatabaseGuild || command.devOnly) {

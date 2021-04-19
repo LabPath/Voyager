@@ -57,7 +57,7 @@
         },
         "user": {
             "questions": [
-                "What is your in-game UID? If you have various accounts **with different emails**, then separate them with a space. Accounts with the same email are taken in consideration by default already.",
+                "What is your in-game UID? No need to mention me, just write the UID.\nIf you have various accounts **with different emails**, then separate them with a space. Accounts with the same email are taken in consideration by default already.",
                 "Do you want me to notify you whenever there's a new code available?"
             ]
         },
@@ -113,6 +113,7 @@
         "newAfkGuidePost": "AFK.guide maintainer u/datguywind has made a new post:",
         "helpMessage": "In order to issue a command, you need to mention me first!\nFor example **`@Voyager ping`**.\nIf you need help for a specific command, use `@Voyager help <command>`.",
         "helpMessageLegend": "`?: Optional` `i: Infinite` `<>: Parameter` `\"\": Must be inside quotation marks`",
+        "stillRunningCommand": "Please finish your previous command before running another.",
         "user": {
             "successCreatingNew": "Successfully saved the following:",
             "successUpdating": "Successfully updated your info:",

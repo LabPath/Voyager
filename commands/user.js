@@ -21,6 +21,7 @@ module.exports = {
     devOnly: false,
     needsDatabaseGuild: false,
     channelTypes: ['dm'],
+    activeUsers: [],
     async execute(message, args, dbGuild) {
         // Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)
@@ -37,6 +38,9 @@ module.exports = {
             })
             return
         }
+
+        // Add user to active users of command until command has finished
+        this.activeUsers.push(message.author.id)
 
         // Check if user already exists in DB
         let user = await controllerUser.getOne({ discord_id: message.author.id })
@@ -103,6 +107,9 @@ async function createUser(message, user) {
             message.channel.send(`If you ever want to update/delete your user information, run \`@Voyager user\` again!`).then((msg) => { msg.pin() })
         }
     }
+
+    // Remove user from active users of command
+    helper.removeArrayEntry(message.client.commands.get('user').activeUsers, message.author.id)
 }
 
 // Show user an embed with info and ask to update or delete
@@ -130,6 +137,9 @@ async function showUser(message, user) {
             })
             .catch(collected => {
                 msg.channel.send(config.texts.outOfTime)
+
+                // Remove user from active users of command
+                helper.removeArrayEntry(message.client.commands.get('user').activeUsers, message.author.id)
             })
     })
 }
@@ -158,6 +168,9 @@ async function deleteUser(message, user) {
         message.channel.send(config.texts.outOfTime)
         return false
     }
+
+    // Remove user from active users of command
+    helper.removeArrayEntry(message.client.commands.get('user').activeUsers, message.author.id)
 }
 
 // Ask for in-game UID
