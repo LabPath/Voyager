@@ -63,7 +63,7 @@
         },
         "redeem": {
             "questions": [
-                "Enter the verification code sent to your in-game mail within 1 minute. No need to mention the bot."
+                "Enter the verification code sent to your in-game mail within 1 minute. No need to mention me."
             ]
         },
         "code": {

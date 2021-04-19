@@ -254,15 +254,29 @@ async function sendVerificationCode(message, cookieJar, i, verificationCode) {
 
     // Wrong Verification Code
     if (res.data.info == 'err_wrong_code') {
+        // Variables
+        let data = null
+
+        // Send message
         message.channel.send(`Lilith says that's a wrong code. Please try again.`)
+
+        // Ask for verification code again
         verificationCode = await askVerificationCode(message)
-        if (verificationCode) await sendVerificationCode(message, cookieJar, i, verificationCode)
+        if (verificationCode) data = await sendVerificationCode(message, cookieJar, i, verificationCode)
+        if (data) return true
     }
     // Code is not a valid string
     else if (res.data.info == 'err_code_must_be_valid_string') {
+        // Variables
+        let data = null
+
+        // Send message
         message.channel.send(`Lilith says the code has an invalid format. Please make sure to send a message with the code only (no need to mention the bot)!`)
+
+        // Ask for verification code again
         verificationCode = await askVerificationCode(message)
         if (verificationCode) await sendVerificationCode(message, cookieJar, i, verificationCode)
+        if (data) return true
     }
     // Not OK
     else if (res.data.info != 'ok') {
