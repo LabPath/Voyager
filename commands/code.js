@@ -216,7 +216,6 @@ async function updateCode(message, code, args, dbGuild) {
 
 // Delete redemption code
 async function deleteCode(message, code, dbGuild) {
-    // TODO: Test if it is even possible to delete messages before trying to delete them
     // Variables
     let codes = dbGuild.data.codes
 
@@ -235,10 +234,12 @@ async function deleteCode(message, code, dbGuild) {
     }
 
     // Delete code from dbGuild.codes
-    delete codes[code.data.code]
-    controllerGuild.put(dbGuild.data._id, { codes: codes })
+    if (codes) {
+        delete codes[code.data.code]
+        controllerGuild.put(dbGuild.data._id, { codes: codes })
+    }
 
-    // Update info
+    // Delete Code
     code = await controllerCodes.delete({ _id: code.data._id })
     if ('err' in code) {
         echo.error(`Deleting Code. Code ${code.code}.`)
@@ -318,7 +319,7 @@ async function publishCode(message, code, dbGuild) {
 
         // Return code anyways
         return code
-    } 
+    }
     else {
         // Channel codes is not set up
         message.channel.send(config.texts.noCodesChannelSet)
