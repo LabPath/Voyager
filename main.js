@@ -18,6 +18,7 @@ const client = new discord.Client()
 client.commands = new discord.Collection()
 
 // TODO: Check how for loops scope variables. I tend to use for (i of array) a lot, but if that fucks up because a lot of people use the same command at the same time, we have a problem.
+// TODO: There's a lot of inconsistency between setting roles and channels. I can set a role as rc or codes, and I can only set a channel with codes for example.
 
 // Check for .env file
 if (!fs.existsSync('./.env')) echo.error('No .env file found! Please create one.', true)

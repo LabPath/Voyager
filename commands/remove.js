@@ -40,6 +40,9 @@ module.exports = {
         // Switch statement for type of set
         switch (args[0]) {
             case 'channel':
+                // Variables
+                const channelId = dbGuild.data.channels[args[1]]
+
                 // Remove channel
                 dbGuild = await removeChannel(message, dbGuild, args[1])
 
@@ -51,7 +54,7 @@ module.exports = {
                 } else {
                     // Let channel know
                     message.channel
-                        .send(`Removed ${helper.getChannelAsMentionFromId(message.channel.id)} as a \`${args[1]}\` channel.`)
+                        .send(`Removed ${helper.getChannelAsMentionFromId(channelId)} as a \`${args[1]}\` channel.`)
                         .then(msg => {
                             msg.delete({ timeout: config.timings.msgDelete })
                             message.delete({ timeout: config.timings.msgDelete })
@@ -67,6 +70,9 @@ module.exports = {
                     type = i
                     break
                 }
+                // TODO: Has to do with changing dbGuild.data.roles from an array to an object
+                // console.log(dbGuild.data.roles)
+                // const roleId = dbGuild.data.roles[type].id
 
                 // Set role
                 dbGuild = await removeRole(dbGuild, type)

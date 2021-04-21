@@ -87,9 +87,6 @@ module.exports = {
 
                     // Send notification to users
                     if (code) sendNotification(message, code, dbGuild)
-
-                    // Let user know
-                    message.channel.send(`Done!`)
                 }
             }
         }
@@ -177,9 +174,6 @@ async function showCode(message, description, code, args, dbGuild) {
 
                         // Send notification to users
                         if (code) sendNotification(message, code, dbGuild)
-
-                        // Let user know
-                        message.channel.send(`Done!`)
                     } else message.channel.send(config.texts.code.alreadyPublished)
                 }
                 // Quit
@@ -227,16 +221,18 @@ async function deleteCode(message, code, dbGuild) {
     let codes = dbGuild.data.codes
 
     // Delete messages from redemption codes channel
-    const channel = await message.client.channels.cache.get(dbGuild.data.channels.codes)
-    channel.messages.fetch(dbGuild.data.codes[code.data.code].codeMsgId)
-        .then(msg => msg.delete())
-        .catch(console.error)
-    channel.messages.fetch(dbGuild.data.codes[code.data.code].rewardsMsgId)
-        .then(msg => msg.delete())
-        .catch(console.error)
-    channel.messages.fetch(dbGuild.data.codes[code.data.code].rolePingMsgId)
-        .then(msg => msg.delete())
-        .catch(console.error)
+    if (dbGuild.data.channels && dbGuild.data.channels.codes) {
+        const channel = await message.client.channels.cache.get(dbGuild.data.channels.codes)
+        channel.messages.fetch(dbGuild.data.codes[code.data.code].codeMsgId)
+            .then(msg => msg.delete())
+            .catch(console.error)
+        channel.messages.fetch(dbGuild.data.codes[code.data.code].rewardsMsgId)
+            .then(msg => msg.delete())
+            .catch(console.error)
+        channel.messages.fetch(dbGuild.data.codes[code.data.code].rolePingMsgId)
+            .then(msg => msg.delete())
+            .catch(console.error)
+    }
 
     // Delete code from dbGuild.codes
     delete codes[code.data.code]
@@ -319,22 +315,30 @@ async function publishCode(message, code, dbGuild) {
 
         // Role redemption_codes is not set up
         message.channel.send(config.texts.noCodesRoleSet)
-        return false
-    } else {
+
+        // Return code anyways
+        return code
+    } 
+    else {
+        // Channel codes is not set up
         message.channel.send(config.texts.noCodesChannelSet)
-        return false
+
+        // Return code anyways
+        return code
     }
 }
 
 // Send a DM notification to every user with notify = true
 async function sendNotification(message, code, dbGuild) {
-    // TODO: Doesn't run in case there's no codes channel set. This should not be the case, as it should be possible to publish a code to all users without needing a codes channel.
+    // Finished
+    message.channel.send(`Working on it...`)
+
     // Variables
     const users = await controllerUsers.get()
 
     // Iterate over all user
     for (let i = 0; i < users.data.length; i++) {
-        message.client.users.fetch(users.data[i].discord_id, false)
+        await message.client.users.fetch(users.data[i].discord_id, false)
             .then((user) => {
                 // Send DM with redeem info
                 if (users.data[i].afk.notify) {
@@ -359,4 +363,7 @@ async function sendNotification(message, code, dbGuild) {
                 }
             })
     }
+
+    // Finished
+    message.channel.send(`Done!`)
 }
