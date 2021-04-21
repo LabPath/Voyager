@@ -112,6 +112,8 @@ function checkCommandArguments(args, forced) {
     if (!args[0]) return false
     // Check for args[1]
     else if (args[1] || forced) {
+        // Check for args[1] (makes sense because of forced)
+        if (!args[1]) return false
         // Iterate args
         for (let i = 2; i < args.length; i += 2) {
             // Check for args[>1]
@@ -296,7 +298,7 @@ async function publishCode(message, code, dbGuild) {
                 if (channel.type === 'news') msgInfo.crosspost().catch((err) => { console.log(err) })
 
                 // Tag role
-                const msgRolePing = await channel.send(helper.getRoleAsMentionFromId(dbGuild.data.roles[i]['redemption_codes'].id))
+                const msgRolePing = await channel.send(`Send me a private message with \`@Voyager redeem ${code.data.code}\` if you want me to redeem this code for you ${helper.getRoleAsMentionFromId(dbGuild.data.roles[i]['redemption_codes'].id)}!`)
 
                 // Update DB published = true
                 code = await controllerCodes.put(code.data._id, { published: true })
