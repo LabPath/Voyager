@@ -44,6 +44,7 @@ The environment file has various variables that Voyager uses:
 | `VOYAGER_TOKEN`     | The Token given by Discord. You can get it [here](https://discord.com/developers/applications/804537849747734578/bot).     |
 | `VOYAGER_CLIENT_ID` | The Client ID given by Discord. You can get it [here](https://discord.com/developers/applications/804537849747734578/bot). |
 | `VOYAGER_PREFIX`    | The bot prefix.                                                                                                            |
+| `VOYAGER_PREFIX2`   | A second bot prefix.                                                                                                       |
 | `DB_USER`           | Database user name.                                                                                                        |
 | `DB_PASSWORD`       | Database password.                                                                                                         |
 | `DB_NAME`           | Database name.                                                                                                             |
@@ -53,6 +54,7 @@ Example `.env` file:
 VOYAGER_TOKEN=KLJAGN876WQ34M98UWSEF9O7J8WYM3RMY8O9SHEF
 VOYAGER_CLIENT_ID=123456789456123
 VOYAGER_PREFIX=<@!123456789456123>
+VOYAGER_PREFIX2=<@123456789456123>
 VOYAGER_DB_USER=db_username
 VOYAGER_DB_PASSWORD=db_password
 VOYAGER_DB_NAME=db_name
@@ -84,15 +86,23 @@ module.exports = {
     aliases: ['alias1', 'alias2'],
     permissions: ['PERMISSION1', 'PERMISSION2'],
     devOnly: false,
+    trusted: false,
     needsDatabaseGuild: false,
+    allowedInServers: ['server_id1', 'server_id2'],
     channelTypes: ['dm', 'text', 'news'],
     execute(message, args, dbGuild) {
+        // Check if server has permission to run command
+        if (!this.allowedInServers.includes(message.guild.id))
+            return message.channel.send(config.texts.wrongServer)
         // Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)
         if (objectPermissions.necessary.length != 0)
             return message.channel.send(helper.generatePermissionLink(objectPermissions, message))
         // If devOnly == true and user has permissions
         if (this.devOnly && !dbGuild.developers.includes(message.author.id))
+            return message.channel.send(config.texts.userLacksPerms)
+            // If trusted == true and user has permissions
+        if (this.trusted && !dbGuild.data.trusted.includes(message.author.id) && !dbGuild.data.developers.includes(message.author.id))
             return message.channel.send(config.texts.userLacksPerms)
         // Check if in correct channel type
         if (!helper.checkChannelType(message, this.channelTypes))
@@ -146,5 +156,3 @@ message.channel.send(exampleEmbed)
 
 # Database
 Voyager uses MongoDB as its database of choice, which is hosted at mongoDB atlas (AWS in this case). There's a **max of 500MB** free usable space. Anything related to the database should be inside the `database` folder. If you're a developer and want to have access to the DB through the Web (using Atlas), please create an account [here](https://account.mongodb.com/account/register) and ask @Zebiano for an invite.
-
-* `Guild`: Stores various info about every guild the bot is in.

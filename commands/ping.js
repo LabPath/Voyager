@@ -1,5 +1,4 @@
 // Require: Libs
-const embeds = require('../lib/embeds')
 const helper = require('../lib/helper')
 
 // Require: Files
@@ -9,6 +8,13 @@ const config = require('../config.json')
 module.exports = {
     name: 'ping',
     aliases: [],
+    help: {
+        isVisible: false,
+        name: 'ping',
+        title: 'Ping me and get an answer.',
+        detailedInfo: 'Ping me and I\'ll ping you back.',
+        usage: 'ping'
+    },
     permissions: [],
     devOnly: false,
     needsDatabaseGuild: false,
@@ -26,6 +32,6 @@ module.exports = {
             return message.channel.send(config.texts.wrongChannel)
 
         // Send embed
-        message.channel.send(embeds.simpleFooter(config.colors.blue, 'Pong.', 'This is an example embed with "Pong" set as the title.'))
+        message.channel.send(`Pong.`)
     }
 }

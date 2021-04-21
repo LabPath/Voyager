@@ -1,6 +1,6 @@
 {
   "name": "voyager",
-  "version": "1.8.3",
+  "version": "1.14.11",
   "description": "Lab Path Discord Bot",
   "scripts": {
     "prod": "node main.js",
@@ -31,10 +31,12 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "chalk": "^4.1.0",
-    "discord.js": "^12.5.1",
+    "axios-cookiejar-support": "^1.0.1",
+    "chalk": "^4.1.1",
+    "discord.js": "^12.5.3",
     "dotenv": "^8.2.0",
     "fs": "0.0.1-security",
-    "mongoose": "^5.11.17"
+    "mongoose": "^5.12.5",
+    "tough-cookie": "^4.0.0"
   }
 }

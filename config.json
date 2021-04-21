@@ -23,7 +23,9 @@
         "set": {
             "channels": [
                 "reddit",
-                "roles"
+                "roles",
+                "codes",
+                "logs"
             ],
             "roles": {
                 "visual_guides": [
@@ -52,25 +54,82 @@
                     "mg"
                 ]
             }
+        },
+        "user": {
+            "questions": [
+                "What is your in-game UID? No need to mention me, just write the UID.\nIf you have various accounts **with different emails**, then separate them with a space. Accounts with the same email are taken in consideration by default already, which means only one UID per email account is enough.",
+                "Do you want me to notify you whenever there's a new code available?"
+            ]
+        },
+        "redeem": {
+            "questions": [
+                "Enter the verification code sent to your in-game mail within 1 minute. No need to mention me."
+            ]
+        },
+        "code": {
+            "questions": [
+                "Should I update the info above with the info you gave me?",
+                "Is this redemption code ready to be published to all servers as well as notify every user?"
+            ]
+        }
+    },
+    "links": {
+        "voyagerIcon": "https://cdn.discordapp.com/avatars/804537849747734578/a6012f38ac14d19eb78d8cbee6d016c3.png?size=128",
+        "reddit": {
+            "labPath":  "http://www.reddit.com/r/lab_path/new.json?limit=5",
+            "afkarenaAfkGuide":  "https://www.reddit.com/r/afkarena/search.json?q=author:datguywind flair:Guide&limit=1"
+        },
+        "redeem": {
+            "logout": "https://cdkey.lilith.com/api/logout?uid=",
+            "sendMail": "https://cdkey.lilith.com/api/send-mail",
+            "verifyCode": "https://cdkey.lilith.com/api/verify-code",
+            "users": "https://cdkey.lilith.com/api/users",
+            "consume": "https://cdkey.lilith.com/api/cd-key/consume"
         }
     },
     "timings": {
-        "msgDelete": 5000
+        "msgDelete": 5000,
+        "reddit": {
+            "lab_path": 900000,
+            "afkarena": 11400000
+        }
     },
     "colors": {
-        "blue": "3e8ed4"
+        "blue": "3e8ed4",
+        "success": "38b23a",
+        "error": "cc0000"
     },
     "texts": {
         "generalError": "Sorry, but something did not go as planned. Please let my creators know!",
+        "generalLetCreatorsKnow": "If something is wrong, please let my creators know!",
         "userLacksPerms": "You lack permissions!",
         "wrongChannel": "I cannot do that here!",
         "botLacksPerms": "I don't have enough permissions to do that! Click here to grant me the necessary permissions:",
-        "resetDatabaseGuild": "Something has gone wrong on my side, I had to reset some settings. Please add developers (aka people you trust) to the bot again with the `dev` command. Sorry for the hassle!",
-        "wrongCommandUsage": "Wrong command usage!"
-    },
-    "reddit": {
-        "lab_path": {
-            "checkInterval": 900000
+        "wrongServer": "I cannot do that in this server!",
+        "wrongCommandUsage": "Wrong command usage!",
+        "outOfTime": "The operation has been cancelled due to inactivity.",
+        "noCodesChannelSet": "No `codes` channel set! Please add one to your server with `set channel codes`.",
+        "noCodesRoleSet": "No `redemption_codes` role set! Please add one to your server with `set role codes`.",
+        "newAfkGuidePost": "AFK.guide maintainer u/datguywind has made a new post:",
+        "helpMessage": "In order to issue a command, you need to mention me first!\nFor example **`@Voyager ping`**.\nIf you need help for a specific command, use `@Voyager help <command>`.",
+        "helpMessageLegend": "`?: Optional` `i: Infinite` `<>: Parameter` `\"\": Must be inside quotation marks`",
+        "stillRunningCommand": "Please finish your previous command before running another.",
+        "user": {
+            "successCreatingNew": "Successfully saved the following:",
+            "successUpdating": "Successfully updated your info:",
+            "successFound": "Found the following info about you:",
+            "successDelete": "Successfully deleted your info! Feel free to delete my pinned message."
+        },
+        "code": {
+            "alreadyExists": "I already have that code in my system, thank you.",
+            "successCreatingNew": "Successfully saved the following:",
+            "successFound": "Found the following info:",
+            "successUpdating": "Successfully updated to:",
+            "alreadyPublished": "That code has already been published!",
+            "codeDoesNotExistYet": "That code is not yet in my Database!"
         }
+    },
+    "creators": {
+        "Zebiano": "241655863616471041"
     }
 }

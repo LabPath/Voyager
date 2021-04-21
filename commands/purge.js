@@ -7,11 +7,19 @@ const config = require('../config.json')
 module.exports = {
     name: 'clear',
     aliases: ['del', 'delete', 'purge'],
+    help: {
+        isVisible: false,
+        name: 'purge',
+        title: 'Delete messages that are no older than 2 weeks.',
+        detailedInfo: 'Delete messages from a channel. Only works on servers.\nYou can either delete an amount of messages, or delete every message by cloning the channel and deleting the old one.',
+        usage: 'del (<amount>|all)',
+        example: 'del 5'
+    },
     permissions: [],
     userPermissions: ['MANAGE_MESSAGES'],
     devOnly: false,
     needsDatabaseGuild: false,
-    channelTypes: ['dm', 'text', 'news'],
+    channelTypes: ['text', 'news'],
     execute(message, args, dbGuild) {
         // Check for Bot permissions
         const objectPermissions = helper.checkBotPermissions(message, this.permissions)
@@ -48,11 +56,10 @@ async function deleteMessages(channel, n) {
     // Clone channel and delete old channel
     if (n == 'all') {
         // Clone channel
-        const newChannel = await channel.clone()
-        console.log(newChannel.id)
+        await channel.clone()
 
         // Delete old channel
-        channel.delete() // TODO: before deleting maybe check if channel.id equals any dbGuild.channels.id 
+        channel.delete() // TODO: Before deleting maybe check if channel.id equals any dbGuild.channels.id 
     }
     // Delete n amount of messages (+ 1 because of command from user)
     else {

@@ -17,6 +17,9 @@ const helper = require('./lib/helper')
 const client = new discord.Client()
 client.commands = new discord.Collection()
 
+// TODO: Check how for loops scope variables. I tend to use for (i of array) a lot, but if that fucks up because a lot of people use the same command at the same time, we have a problem.
+// TODO: There's a lot of inconsistency between setting roles and channels. I can set a role as rc or codes, and I can only set a channel with codes for example.
+
 // Check for .env file
 if (!fs.existsSync('./.env')) echo.error('No .env file found! Please create one.', true)
 else {
@@ -49,15 +52,24 @@ client.once('ready', async function () {
     // Set activity
     await client.user.setActivity(`v${package.version}`, { type: 'PLAYING' })
 
-    // Run a subreddit check every 30 mins
+    // Run a r/Lab_path check every 15 mins
     setInterval(() => {
         // Change activity
         if (client.user.presence.activities[0].type == 'PLAYING') client.user.setActivity('r/Lab_path', { type: 'WATCHING' })
         else if (client.user.presence.activities[0].type == 'WATCHING') client.user.setActivity(`v${package.version}`, { type: 'PLAYING' })
 
-        // Check for latest subreddit post
-        helper.checkSubreddits(client)
-    }, config.reddit.lab_path.checkInterval)
+        // Check for latest Dismal and Lab Maps
+        helper.checkLabMaps(client)
+
+        // Clear all active users from commands
+        helper.clearAllActiveUsers(client.commands)
+    }, config.timings.reddit.lab_path)
+
+    // Run a r/afkarena check every 3 hours and 10 mins
+    setInterval(() => {
+        // Check for latest afk.guide maintainer post with flair "Guide"
+        helper.checkAfkGuideMaps(client)
+    }, config.timings.reddit.afkarena)
 
     // Get database Guilds
     let dbGuilds = await controllerGuild.get()
@@ -67,7 +79,7 @@ client.once('ready', async function () {
     }
 
     // Cache reaction messages if dbGuilds[i] has a roles channel
-    for (i of dbGuilds.data) if (i.channels.roles) {
+    for (i of dbGuilds.data) if (i.channels && i.channels.roles) {
         await client.channels.cache
             .get(i.channels.roles).messages.fetch(i.message_reaction_id)
             .catch(async err => { if (err.message.includes('Unknown')) await controllerGuild.put(i._id, { message_reaction_id: null }) })
@@ -75,16 +87,17 @@ client.once('ready', async function () {
 
     // Events only fire whenever anything has been done in the server.
     // This could be posting a message, reacting to a message other than the role embed, or reacting twice to a single emoji on the role embed.
+    // TODO: I think it has something to do with what server is first/second/etc saved in the database? Something like that. But definitely one server works instantly and the other only after updating.
     // Event messageReactionAdd
     client.on('messageReactionAdd', async function (reaction, user) {
         // Check for bot as author
-        if (user.id != process.env.VOYAGER_CLIENT_ID)
+        if (user.id != process.env.VOYAGER_CLIENT_ID && reaction.message.channel.type != 'dm')
             await helper.manageRolesByReacting(reaction, user, 'add')
     })
     // Event messageReactionRemove
     client.on('messageReactionRemove', async function (reaction, user) {
         // Check for bot as author
-        if (user.id != process.env.VOYAGER_CLIENT_ID)
+        if (user.id != process.env.VOYAGER_CLIENT_ID && reaction.message.channel.type != 'dm')
             await helper.manageRolesByReacting(reaction, user, 'remove')
     })
 })
@@ -110,17 +123,8 @@ client.on('guildDelete', async function (guild) {
     // Variables
     const dbGuild = await controllerGuild.getOne({ guild_id: guild.id })
 
-    // Remove guild from Database
+    // Delete dbGuild from database
     if (dbGuild.code != 404 || !'err' in dbGuild) {
-        // Remove reaction embed
-        if (dbGuild.data.message_reaction_id) {
-            const msg = await client.channels.cache
-                .get(dbGuild.data.channels.roles).messages.fetch(dbGuild.data.message_reaction_id)
-                .catch(async err => { console.log(err) }) // TODO: This catch does not at all work as intended.
-            msg.delete()
-        }
-
-        // Delete dbGuild from database
         await controllerGuild.delete(dbGuild.data._id)
         echo.info(`Left Guild with ID ${dbGuild.data._id}.`)
     }
@@ -130,59 +134,79 @@ client.on('guildDelete', async function (guild) {
 client.on('message', async function (message) {
     // console.log(message.content)
     // Variables
-    const voyagerRoleId = helper.getVoyagerRoleId(message.guild)
+    let voyagerRoleId = null
+    if (message.guild) voyagerRoleId = helper.getVoyagerRoleId(message.guild)
 
     // If message is only a bot ping
     if (message.content == process.env.VOYAGER_PREFIX) return message.channel.send(`Use \`@Voyager help\` for a list of commands.`)
 
     // If message starts with bot prefix or Voyager role and message.author is NOT Voyager 
-    if ((message.content.startsWith(process.env.VOYAGER_PREFIX) || message.content.startsWith(helper.getRoleAsMentionFromId(voyagerRoleId))) && message.author.id != process.env.VOYAGER_CLIENT_ID) {
+    if (message.author.id != process.env.VOYAGER_CLIENT_ID && (message.content.startsWith(process.env.VOYAGER_PREFIX) || message.content.startsWith(process.env.VOYAGER_PREFIX2) || message.content.startsWith(helper.getRoleAsMentionFromId(voyagerRoleId)))) {
         // Variables
+        let dbGuild = null
         const args = message.content.slice(process.env.VOYAGER_PREFIX.length).trim().split(/ +/)
         let commandInput = args.shift().toLowerCase()
+        // console.log(args)
+        // console.log(commandInput)
 
         // Check if command exists (with aliases)
         const command = client.commands.get(commandInput) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandInput))
-        // console.log(args)
-        // console.log(command)
         if (!command) return
 
-        // Variables
-        let dbGuild = null
+        // Check if user is running command
+        if (command.activeUsers && command.activeUsers.includes(message.author.id)) return message.channel.send(config.texts.stillRunningCommand)
 
         // Check if command needs dbGuild
         if (command.needsDatabaseGuild || command.devOnly) {
-            // Get Current Guild
-            dbGuild = await controllerGuild.getOne({ guild_id: message.guild.id })
-
-            // Not Found
-            if (dbGuild.code == 404) {
-                // Create new
-                dbGuild = await controllerGuild.post({ guild_id: message.guild.id, role_id: voyagerRoleId, developers: message.guild.ownerID })
-
-                // Check for error in dbGuild
-                if ('err' in dbGuild) {
-                    echo.error(`Creating Guild. Code ${dbGuild.code}.`)
-                    echo.error(dbGuild.err)
-                    return message.channel.send(config.texts.generalError)
-                } else message.guild.owner.send(config.texts.resetDatabaseGuild)
+            // Check if in DMs
+            if (message.channel.type == 'dm') {
+                // In case command help, ignore dbGuild
+                if (command.help.name != 'help') return message.channel.send(config.texts.wrongChannel)
             }
-            // Check if Voyager role is saved in database
-            else if (!dbGuild.data.role_id) {
-                // Update 
-                controllerGuild.put(dbGuild.data._id, { role_id: voyagerRoleId })
+            // Not in DMs
+            else {
+                // Get Current Guild
+                dbGuild = await controllerGuild.getOne({ guild_id: message.guild.id })
 
-                // Check for error in dbGuild
-                if ('err' in dbGuild) {
-                    echo.error(`Updating Guild. Code ${dbGuild.code}.`)
-                    echo.error(dbGuild.err)
-                    return message.channel.send(config.texts.generalError)
+                // Not Found
+                if (dbGuild.code == 404) {
+                    // Create new
+                    dbGuild = await controllerGuild.post({ guild_id: message.guild.id, role_id: voyagerRoleId, developers: message.guild.ownerID })
+
+                    // Check for error in dbGuild
+                    if ('err' in dbGuild) {
+                        echo.error(`Creating Guild. Code ${dbGuild.code}.`)
+                        echo.error(dbGuild.err)
+                        return message.channel.send(config.texts.generalError)
+                    } else message.guild.owner.send(`Something has gone wrong on my side, I had to reset all settings for your Guild \`${message.guild.name} - ${message.guild.id}\`. Please set me up again! Sorry for the hassle.`)
+                }
+                // Found
+                else {
+                    // Variables
+                    let body = {}
+
+                    // Check for role_id
+                    if (!dbGuild.data.role_id) body.role_id = voyagerRoleId
+
+                    // Check for developers array
+                    if (!dbGuild.data.developers.includes(message.guild.ownerID)) {
+                        body.developers = dbGuild.data.developers
+                        body.developers.push(message.guild.ownerID)
+                    }
+
+                    // Check for error in dbGuild
+                    dbGuild = await controllerGuild.put(dbGuild.data._id, body)
+                    if ('err' in dbGuild) {
+                        echo.error(`Updating Guild. Code ${dbGuild.code}.`)
+                        echo.error(dbGuild.err)
+                        return message.channel.send(config.texts.generalError)
+                    }
                 }
             }
         }
 
         // Try to execute it
         try { command.execute(message, args, dbGuild) }
-        catch (err) { echo.error(err) }
+        catch (err) { console.log(err) }
     }
 })

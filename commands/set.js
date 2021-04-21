@@ -11,6 +11,14 @@ const controllerGuild = require('../database/Guild/controller')
 module.exports = {
     name: 'set',
     aliases: [],
+    help: {
+        isVisible: false,
+        name: 'set',
+        title: 'Set various things.',
+        detailedInfo: 'Set various details for the server, like for example channels, roles, trusted and developer users.',
+        usage: 'set channel|role|trusted|developer',
+        example: 'set channel roles'
+    },
     permissions: ['MANAGE_ROLES', 'MANAGE_EMOJIS'],
     devOnly: true,
     needsDatabaseGuild: true,
@@ -34,7 +42,7 @@ module.exports = {
         switch (args[0]) {
             case 'channel':
                 // Set channel
-                if (args[2]) dbGuild = await setChannel(dbGuild, args[1], args[2])
+                if (args[2]) dbGuild = await setChannel(dbGuild, args[1], helper.getIdFromMention(args[2]))
                 else dbGuild = await setChannel(dbGuild, args[1], message.channel.id)
 
                 // Check if error in dbGuild
@@ -45,7 +53,7 @@ module.exports = {
                 } else {
                     if (args[2]) {
                         message.channel
-                            .send(`Set ${helper.getChannelAsMentionFromId(args[2])} as a \`${args[1]}\` channel.`)
+                            .send(`Set ${args[2]} as a \`${args[1]}\` channel.`)
                             .then(msg => {
                                 msg.delete({ timeout: config.timings.msgDelete })
                                 message.delete({ timeout: config.timings.msgDelete })
@@ -85,8 +93,8 @@ module.exports = {
                 break
             case 'role':
                 // Variables
-                let emoji = null
-                let type = null
+                var emoji = null
+                var type = null
 
                 // Check for type
                 for (i of Object.keys(config.commands.set.roles)) if (Object.values(config.commands.set.roles[i]).includes(args[1])) {
@@ -94,12 +102,8 @@ module.exports = {
                     break
                 }
 
-                // Create emoji if url
-                if (args[3].includes('http')) {
-                    emoji = await helper.createEmoji(message.guild, args[3], type)
-                    emoji = { id: `${emoji.name}:${emoji.id}` }
-                }
-                else emoji = { id: helper.getIdFromMention(args[3]) }
+                // Emoji
+                emoji = { id: helper.getIdFromMention(args[3]) }
                 // console.log(args[3])
                 // console.log(emoji)
 
@@ -123,6 +127,24 @@ module.exports = {
                     // TODO: If it's a new role, update reaction embed with new role
                 }
                 break
+            case 'trusted':
+                // Add Trusted User to Guild
+                dbGuild = await controllerGuild.put(dbGuild.data._id, { $addToSet: { trusted: helper.getIdFromMention(args[1]) } })
+                if ('err' in dbGuild) {
+                    echo.error(`Adding trusted user. Code ${dbGuild.code}.`)
+                    echo.error(dbGuild.err)
+                    message.channel.send(config.texts.generalError)
+                } else message.channel.send(`${args[1]} is now part of the Team! Got it.`)
+                break
+            case 'developer':
+                // Add Developer to Guild
+                dbGuild = await controllerGuild.put(dbGuild.data._id, { $addToSet: { developers: helper.getIdFromMention(args[1]) } })
+                if ('err' in dbGuild) {
+                    echo.error(`Adding developer. Code ${dbGuild.code}.`)
+                    echo.error(dbGuild.err)
+                    message.channel.send(config.texts.generalError)
+                } else message.channel.send(`${args[1]} is now one of my masters as well! Got it.`)
+                break
         }
     }
 }
@@ -141,14 +163,25 @@ function checkCommandArguments(args) {
             // Check for args[1] and args[2]
             if (!args[1] || !args[2] || !args[3]) return false
             else {
+                // Variables
+                let validArgs1 = false
                 // Check for args[1]
                 for (i of Object.keys(config.commands.set.roles)) {
-                    if (Object.values(config.commands.set.roles[i]).includes(args[1])) return true
+                    if (Object.values(config.commands.set.roles[i]).includes(args[1])) {
+                        validArgs1 = true
+                        break
+                    }
                 }
-                // TODO: Check uf args[2] is valid role
-                // TODO: Check if args[3] is valid URL or emoji ID
+                if (!validArgs1) return false
+                // Check for valid role and valid emoji
+                if (!helper.getIdFromMention(args[2]) || !helper.getIdFromMention(args[3])) return false
             }
-            return false
+            return true
+        case 'trusted':
+        case 'developer':
+            // Check for args[1]
+            if (!args[1] || !helper.getIdFromMention(args[1])) return false
+            else return true
         default:
             return false
     }
@@ -156,11 +189,16 @@ function checkCommandArguments(args) {
 
 // Saves channel ID in database as channel
 async function setChannel(dbGuild, type, channelId) {
+    // TODO: If channel is type 'logs', check how it would work in case bot is in various random guilds!
     // Variables
     let body = { channels: dbGuild.data.channels }
 
     // Set channel ID
-    body.channels[type] = channelId
+    if (body.channels) body.channels[type] = channelId
+    else {
+        body = { channels: {} }
+        body.channels[type] = channelId
+    }
 
     // Return
     return await controllerGuild.put(dbGuild.data._id, body)
