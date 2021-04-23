@@ -84,7 +84,7 @@ async function createUser(message, user) {
 
     // Check if update or create
     if (user) {
-        // Create new user
+        // Update user
         user = await controllerUser.put(user.data._id, body)
         if ('err' in user) {
             echo.error(`Creating User. Code ${user.code}.`)
