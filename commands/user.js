@@ -202,6 +202,9 @@ async function askUID(message, body) {
                 return body
             })
             .catch(collected => {
+                // Remove user from active users of command
+                helper.removeArrayEntry(message.client.commands.get('user').activeUsers, message.author.id)
+
                 message.channel.send(config.texts.outOfTime)
                 return false
             })
