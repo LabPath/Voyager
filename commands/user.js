@@ -223,6 +223,9 @@ async function askNotify(message, body) {
     else if (answer == false) return body
     // If out of time
     else if (answer == 'out_of_time') {
+        // Remove user from active users of command
+        helper.removeArrayEntry(message.client.commands.get('user').activeUsers, message.author.id)
+
         message.channel.send(config.texts.outOfTime)
         return false
     }
