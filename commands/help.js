@@ -79,7 +79,7 @@ module.exports = {
             embed.addField(`Legend:`, config.texts.helpMessageLegend)
 
             // Send embed
-            user.send(embed)
+            user.send(embed) // TODO: Create an exception in case the user doesn't let members of the server send private messages. Maybe send a message saying "I cant message you sorry", but I'll have to take care with other possible errors... Check for status code 403 (forbidden)
         }
         // General help command
         else {
