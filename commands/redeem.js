@@ -180,7 +180,7 @@ async function askIfReady(message, i) {
 
     // If out of time
     if (answer == false) {
-        message.channel.send(`No problem, just run \`@Voyager redeem ${i}\` when you're ready!`)
+        message.channel.send(`No problem, just run \`@Voyager ${message.content.substring(message.content.indexOf('>') + 1).trim()}\` when you're ready!`)
         return false
     }
     else if (answer == 'out_of_time') {
