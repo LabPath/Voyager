@@ -77,7 +77,7 @@
         "voyagerIcon": "https://cdn.discordapp.com/avatars/804537849747734578/a6012f38ac14d19eb78d8cbee6d016c3.png?size=128",
         "reddit": {
             "labPath":  "http://www.reddit.com/r/lab_path/new.json?limit=5",
-            "afkarenaAfkGuide":  "https://www.reddit.com/r/afkarena/search.json?q=author:datguywind flair:Guide&limit=1"
+            "afkarenaAfkGuide":  "https://www.reddit.com/r/afkarena/search.json?q=author:datguywind flair:Guide&limit=5&sort=new&restrict_sr=on"
         },
         "redeem": {
             "logout": "https://cdkey.lilith.com/api/logout?uid=",

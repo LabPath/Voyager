@@ -1,6 +1,7 @@
 // Require: Libs
 const embeds = require('../lib/embeds')
 const helper = require('../lib/helper')
+const echo = require('../lib/echo')
 
 // Require: Files
 const config = require('../config.json')
@@ -348,8 +349,13 @@ async function sendNotification(message, code, dbGuild) {
                     message += `${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}\n\n`
 
                     // Send messages
-                    user.send(message)
-                    user.send(`Run \`@Voyager redeem ${code.data.code}\` if you want me to redeem it for you!`)
+                    try {
+                        user.send(message)
+                        user.send(`Run \`@Voyager redeem ${code.data.code}\` if you want me to redeem it for you!`)
+                    } catch (err) {
+                        // Catch in case Voyager is not able to send messages to user
+                        echo.warn(`Unable to send new code to user ${users.data[i].discord_id}.`)
+                    }
                 }
             })
             .catch((err) => {
