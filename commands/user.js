@@ -78,6 +78,7 @@ async function createUser(message, user) {
     body = await askUID(message, body) // Ask for in-game UID
     if (!body) return
     body = await askNotify(message, body) // Ask for notify
+    if (!body) return
 
     // Variables
     let description = `\`\`\`json\nUID: ${body.afk.afk_uids}\nNotify: ${body.afk.notify}\`\`\``
