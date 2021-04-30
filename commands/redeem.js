@@ -198,13 +198,16 @@ async function logout(message, cookieJar, i) {
 
     // Logout
     const res = await axios.get(config.links.redeem.logout + i, options)
-    // Not OK
-    if (res.data.info != 'ok') {
+
+    // If something went wrong
+    if (res.status != 200 || res.data == undefined || res.data.info != 'ok') {
         console.log('--- Logout ---')
         console.log(res)
         message.channel.send(config.texts.generalError)
         return false
-    } else return true
+    }
+    // Success
+    else return true
 }
 
 // Send a verification code to in-game mail
@@ -221,20 +224,27 @@ async function sendVerificationMail(message, cookieJar, i) {
     // Request
     const res = await axios.post(config.links.redeem.sendMail, body, options)
 
-    // Send mail too often
-    if (res.data.info == 'err_send_mail_too_often') {
-        message.channel.send(`Lilith says I've been trying too often to redeem codes for you (UID \`${i}\`). Please try again in ${res.data.data.second} seconds.`)
-        return false
+    // If all is well
+    if (res.status == 200 && res.data != undefined) {
+        switch (res.data.info) {
+            case 'ok': return true
+            case 'err_send_mail_too_often':
+                message.channel.send(`Lilith says I've been trying too often to redeem codes for you (UID \`${i}\`). Please try again in ${res.data.data.second} seconds.`)
+                return false
+            default:
+                console.log('--- Send Verification Mail ---')
+                console.log(res)
+                message.channel.send(config.texts.generalError)
+                return false
+        }
     }
-    // Not OK
-    else if (res.data.info != 'ok') {
+    // If something went wrong
+    else {
         console.log('--- Send Verification Mail ---')
         console.log(res)
         message.channel.send(config.texts.generalError)
         return false
     }
-    // Success
-    else return true
 }
 
 // Sends Verification code to Lilith
@@ -252,41 +262,46 @@ async function sendVerificationCode(message, cookieJar, i, verificationCode) {
     // Request
     const res = await axios.post(config.links.redeem.verifyCode, body, options)
 
-    // Wrong Verification Code
-    if (res.data.info == 'err_wrong_code') {
-        // Variables
-        let data = null
+    // If all is well
+    if (res.status == 200 && res.data != undefined) {
+        switch (res.data.info) {
+            case 'ok': return true
+            case 'err_code_must_be_valid_string':
+                // Variables
+                var data = null
 
-        // Send message
-        message.channel.send(`Lilith says that's a wrong code. Please try again.`)
+                // Send message
+                message.channel.send(`Lilith says the code has an invalid format. Please make sure to send a message with the code only (no need to mention the bot)!`)
 
-        // Ask for verification code again
-        verificationCode = await askVerificationCode(message)
-        if (verificationCode) data = await sendVerificationCode(message, cookieJar, i, verificationCode)
-        if (data) return true
+                // Ask for verification code again
+                verificationCode = await askVerificationCode(message)
+                if (verificationCode) await sendVerificationCode(message, cookieJar, i, verificationCode)
+                if (data) return true
+            case 'err_wrong_code':
+                // Variables
+                var data = null
+
+                // Send message
+                message.channel.send(`Lilith says that's a wrong code. Please try again.`)
+
+                // Ask for verification code again
+                verificationCode = await askVerificationCode(message)
+                if (verificationCode) data = await sendVerificationCode(message, cookieJar, i, verificationCode)
+                if (data) return true
+            default:
+                console.log('--- Send Verification Code ---')
+                console.log(res)
+                message.channel.send(config.texts.generalError)
+                return false
+        }
     }
-    // Code is not a valid string
-    else if (res.data.info == 'err_code_must_be_valid_string') {
-        // Variables
-        let data = null
-
-        // Send message
-        message.channel.send(`Lilith says the code has an invalid format. Please make sure to send a message with the code only (no need to mention the bot)!`)
-
-        // Ask for verification code again
-        verificationCode = await askVerificationCode(message)
-        if (verificationCode) await sendVerificationCode(message, cookieJar, i, verificationCode)
-        if (data) return true
-    }
-    // Not OK
-    else if (res.data.info != 'ok') {
+    // If something went wrong
+    else {
         console.log('--- Send Verification Code ---')
         console.log(res)
         message.channel.send(config.texts.generalError)
         return false
     }
-    // Success
-    else return true
 }
 
 // Gets all the UIDs from logged in user
@@ -303,19 +318,28 @@ async function getUsersUIDs(message, cookieJar, i) {
     // Request
     const res = await axios.post(config.links.redeem.users, body, options)
 
-    // Not OK
-    if (res.data.info != 'ok') {
+    // If all is well
+    if (res.status == 200 && res.data != undefined) {
+        switch (res.data.info) {
+            case 'ok': return res
+            default:
+                console.log('--- Get User UIDs ---')
+                console.log(res)
+                message.channel.send(config.texts.generalError)
+                return false
+        }
+    }
+    // If something went wrong
+    else {
         console.log('--- Get User UIDs ---')
         console.log(res)
         message.channel.send(config.texts.generalError)
         return false
     }
-    // Success
-    else return res
 }
 
 // Redeem code for user
-async function redeemCode(cookieJar, user, args) {
+async function redeemCode(cookieJar, user, args, message) {
     // Variables
     let description = `\`\`\`json\n${user.name} (${user.uid}): {\n`
     let arrayExpired = []
@@ -337,30 +361,36 @@ async function redeemCode(cookieJar, user, args) {
         const res = await axios.post(config.links.redeem.consume, body, options)
         if (dbStats) controllerStat.put(dbStats.data._id, { $inc: { 'redemption_codes.totalAttempts': 1 } })
 
-        // Expired Code
-        if (res.data.info == 'err_cdkey_expired') {
-            description += `  "${args[i]}": "Has expired.",\n`
-            if (!arrayExpired.includes(args[i])) arrayExpired.push(args[i])
+        // If all is well
+        if (res.status == 200 && res.data != undefined) {
+            switch (res.data.info) {
+                case 'ok':
+                    description += `  "${args[i]}": "Redeemed!",\n`
+                    if (dbStats) controllerStat.put(dbStats.data._id, { $inc: { 'redemption_codes.totalRedeemed': 1 } })
+                    break
+                case 'err_cdkey_expired':
+                    description += `  "${args[i]}": "Has expired.",\n`
+                    if (!arrayExpired.includes(args[i])) arrayExpired.push(args[i])
+                    break
+                case 'err_cdkey_batch_error':
+                    description += `  "${args[i]}": "Already claimed.",\n`
+                    break
+                case 'err_cdkey_record_not_found':
+                    description += `  "${args[i]}": "Invalid code.",\n`
+                    break
+                default:
+                    console.log('--- Redeem Code ---')
+                    console.log(res)
+                    message.channel.send(config.texts.generalError)
+                    return 'breakAll'
+            }
         }
-        // Already redeemed code
-        else if (res.data.info == 'err_cdkey_batch_error') {
-            description += `  "${args[i]}": "Already claimed.",\n`
-        }
-        // Code invalid
-        else if (res.data.info == 'err_cdkey_record_not_found') {
-            description += `  "${args[i]}": "Invalid code.",\n`
-        }
-        // Not OK
-        else if (res.data.info != 'ok') {
+        // If something went wrong
+        else {
             console.log('--- Redeem Code ---')
             console.log(res)
             message.channel.send(config.texts.generalError)
             return 'breakAll'
-        }
-        // Success
-        else {
-            description += `  "${args[i]}": "Redeemed!",\n`
-            if (dbStats) controllerStat.put(dbStats.data._id, { $inc: { 'redemption_codes.totalRedeemed': 1 } })
         }
     }
 
