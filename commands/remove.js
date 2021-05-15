@@ -1,6 +1,7 @@
 // Require: Libs
 const helper = require('../lib/helper')
 const echo = require('../lib/echo')
+const embeds = require('../lib/embeds')
 
 // Require: Files
 const config = require('../config.json')
@@ -64,13 +65,19 @@ module.exports = {
             case 'role':
                 // Variables
                 let type = null
+                let emojiId = null
 
                 // Check for type
                 for (i of Object.keys(config.commands.set.roles)) if (Object.values(config.commands.set.roles[i]).includes(args[1])) {
                     type = i
                     break
                 }
-                // TODO: Has to do with changing dbGuild.data.roles from an array to an object
+
+                // Get Emoji ID
+                for (i of dbGuild.data.roles) if (i[type]) {
+                    emojiId = helper.getEmojiId(i[type].emoji)
+                    break
+                }
                 // console.log(dbGuild.data.roles)
                 // const roleId = dbGuild.data.roles[type].id
 
@@ -84,9 +91,30 @@ module.exports = {
                 } else {
                     message.channel
                         .send(`Removed ${args[1]} as \`${type}\` role.`)
-                        .then(msg => {
+                        .then(async msg => {
+                            // Delete messages
                             msg.delete({ timeout: config.timings.msgDelete })
                             message.delete({ timeout: config.timings.msgDelete })
+
+                            // If a role embed already exists
+                            if (dbGuild.data.message_reaction_id) {
+                                // Get role embed
+                                const msgEmbed = await message.client.channels.cache.get(dbGuild.data.channels.roles).messages.fetch(dbGuild.data.message_reaction_id)
+                                
+                                // Edit message
+                                msgEmbed.edit(embeds.listRoles(config.colors.blue, 'Role assignment:', dbGuild.data.roles))
+                                .then(async msg => {
+                                    // React with emojis
+                                    for (i of dbGuild.data.roles)
+                                    for (j in i)
+                                    msg.react(helper.getEmojiAsMentionFromId(i[j].emoji))
+                                })
+                                
+                                // Remove reactions
+                                msgEmbed.reactions.cache.get(emojiId)
+                                    .remove()
+                                    .catch(err => console.error('Failed to remove reactions: ', err))
+                            }
                         })
                 }
                 break

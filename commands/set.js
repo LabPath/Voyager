@@ -69,25 +69,32 @@ module.exports = {
 
                     // Send Roles embed if args[1] == roles
                     if (args[1] == 'roles') {
-                        // Delete old embed if exists
+                        // If a role embed already exists
                         if (dbGuild.data.message_reaction_id) {
-                            const msg = await message.client.channels.cache
-                                .get(dbGuild.data.channels.roles).messages.fetch(dbGuild.data.message_reaction_id)
-                                .catch(async err => { if (err.message.includes('Unknown')) return dbGuild = await controllerGuild.put(dbGuild.data._id, { message_reaction_id: null }) })
-                            msg.delete() // TODO: This shouldn't run if a catch is caught
+                            // Edit it
+                            const msgEmbed = await message.client.channels.cache.get(dbGuild.data.channels.roles).messages.fetch(dbGuild.data.message_reaction_id)
+                            msgEmbed.edit(embeds.listRoles(config.colors.blue, 'Role assignment:', dbGuild.data.roles))
+                                .then(async msg => {
+                                    // React with emojis
+                                    for (i of dbGuild.data.roles)
+                                        for (j in i)
+                                            msg.react(helper.getEmojiAsMentionFromId(i[j].emoji))
+                                })
                         }
+                        // Role embed doesn't exist
+                        else {
+                            // Create new
+                            message.channel.send(embeds.listRoles(config.colors.blue, 'Role assignment:', dbGuild.data.roles))
+                                .then(async msg => {
+                                    // React with emojis
+                                    for (i of dbGuild.data.roles)
+                                        for (j in i)
+                                            msg.react(helper.getEmojiAsMentionFromId(i[j].emoji))
 
-                        // Create new
-                        message.channel.send(embeds.listRoles(config.colors.blue, 'Role assignment:', dbGuild.data.roles))
-                            .then(async msg => {
-                                // React with emojis
-                                for (i of dbGuild.data.roles)
-                                    for (j in i)
-                                        msg.react(helper.getEmojiAsMentionFromId(i[j].emoji))
-
-                                // Save msg.id to database
-                                dbGuild = await controllerGuild.put(dbGuild.data._id, { message_reaction_id: msg.id })
-                            })
+                                    // Save msg.id to database
+                                    dbGuild = await controllerGuild.put(dbGuild.data._id, { message_reaction_id: msg.id })
+                                })
+                        }
                     }
                 }
                 break
@@ -124,7 +131,19 @@ module.exports = {
                             msg.delete({ timeout: config.timings.msgDelete })
                             message.delete({ timeout: config.timings.msgDelete })
                         })
-                    // TODO: If it's a new role, update reaction embed with new role
+
+                    // Update role embed with new role if a role embed already exists
+                    if (dbGuild.data.message_reaction_id) {
+                        // Edit it
+                        const msgEmbed = await message.client.channels.cache.get(dbGuild.data.channels.roles).messages.fetch(dbGuild.data.message_reaction_id)
+                        msgEmbed.edit(embeds.listRoles(config.colors.blue, 'Role assignment:', dbGuild.data.roles))
+                            .then(async msg => {
+                                // React with emojis
+                                for (i of dbGuild.data.roles)
+                                    for (j in i)
+                                        msg.react(helper.getEmojiAsMentionFromId(i[j].emoji))
+                            })
+                    }
                 }
                 break
             case 'trusted':
