@@ -148,7 +148,7 @@ module.exports = {
 // Check if arguments are correct
 function checkCommandArguments(args) {
     // Check for args
-    if (!args) return false
+    if (!args[0]) return false
     else return true
 }
 

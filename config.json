@@ -106,7 +106,7 @@
         "wrongChannel": "I cannot do that here!",
         "botLacksPerms": "I don't have enough permissions to do that! Click here to grant me the necessary permissions:",
         "wrongServer": "I cannot do that in this server!",
-        "wrongCommandUsage": "Wrong command usage!",
+        "wrongCommandUsage": "Wrong command usage! Run `@Voyager help` for more info.",
         "outOfTime": "The operation has been cancelled due to inactivity.",
         "noCodesChannelSet": "No `codes` channel set! Please add one to your server with `set channel codes`.",
         "noCodesRoleSet": "No `redemption_codes` role set! Please add one to your server with `set role codes`.",

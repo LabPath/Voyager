@@ -1,6 +1,6 @@
 {
   "name": "voyager",
-  "version": "1.14.15",
+  "version": "1.14.16",
   "description": "Lab Path Discord Bot",
   "scripts": {
     "prod": "node main.js",

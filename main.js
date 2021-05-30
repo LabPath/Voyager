@@ -145,7 +145,7 @@ client.on('message', async function (message) {
         // Variables
         let dbGuild = null
         const args = message.content.slice(process.env.VOYAGER_PREFIX.length).trim().split(/ +/)
-        let commandInput = args.shift().toLowerCase()
+        const commandInput = args.shift().toLowerCase()
         // console.log(args)
         // console.log(commandInput)
 
