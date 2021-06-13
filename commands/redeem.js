@@ -13,6 +13,7 @@ const controllerStat = require('../database/Stat/controller')
 
 // Variables
 let dbStats = null
+let arrayExpired = []
 
 // Set dbStats
 controllerStat.getOne().then(async (stat) => {
@@ -101,8 +102,9 @@ module.exports = {
                 // if (data) console.log('Logout', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
 
                 // Send Verification Mail
-                if (data) data = await sendVerificationMail(message, cookieJar, user.data.afk.afk_uids[i])
-                else return
+                // TODO: Remove everything related to sendVerificationMail when sure the game doesn't use it anymore
+                /* if (data) data = await sendVerificationMail(message, cookieJar, user.data.afk.afk_uids[i])
+                else return */
                 // if (data) console.log('Verification Mail', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
 
                 // Ask for verification Code
@@ -139,6 +141,24 @@ module.exports = {
 
                 // Send message
                 message.channel.send('Done!')
+
+                // Let Zeb know of codes that have expired to remove them
+                for (let i = 0; i < arrayExpired.length; i++) {
+                    // Get code
+                    controllerCodes.getOne({ code: arrayExpired[i] })
+                        .then((codeToBeDeleted) => {
+                            // If exists
+                            if (codeToBeDeleted.code == 200) {
+                                // Message Zeb to delete code
+                                message.client.users.fetch(config.creators.Zebiano, false).then((user) => {
+                                    user.send(`Code \`${arrayExpired[i]}\` has expired, delete it with \`@Voyager code ${arrayExpired[i]}\`.`)
+                                })
+                            }
+                        })
+                }
+
+                // Reset Array
+                arrayExpired = []
             }
         }
     }
@@ -152,31 +172,10 @@ function checkCommandArguments(args) {
     else return true
 }
 
-// Ask for verification code
-async function askVerificationCode(message) {
-    // Filter
-    const filter = response => {
-        if (response.content.trim()) return true
-        return false
-    }
-
-    return await message.channel.send(config.commands.redeem.questions[0]).then(() => {
-        return message.channel.awaitMessages(filter, { max: 1, time: 70000, errors: ['time'] })
-            .then(collected => {
-                // Return
-                return collected.first().content.trim()
-            })
-            .catch(collected => {
-                message.channel.send(config.texts.outOfTime)
-                return false
-            })
-    })
-}
-
 // Ask if user is ready for verification code
 async function askIfReady(message, i) {
     // Ask user if they're sure
-    const answer = await helper.askYesOrNo(message, `React when you're ready to receive the verification code for account \`${i}\`.`, 20000)
+    const answer = await helper.askYesOrNo(message, `React when you're ready to send me the verification code for account \`${i}\`.`, 20000)
 
     // If out of time
     if (answer == false) {
@@ -208,6 +207,27 @@ async function logout(message, cookieJar, i) {
     }
     // Success
     else return true
+}
+
+// Ask for verification code
+async function askVerificationCode(message) {
+    // Filter
+    const filter = response => {
+        if (response.author.id != process.env.VOYAGER_CLIENT_ID && response.content.trim()) return true
+        return false
+    }
+
+    return await message.channel.send(config.commands.redeem.questions[0]).then(() => {
+        return message.channel.awaitMessages(filter, { max: 1, time: 120000, errors: ['time'] })
+            .then(collected => {
+                // Return
+                return collected.first().content.trim()
+            })
+            .catch(collected => {
+                message.channel.send(config.texts.outOfTime)
+                return false
+            })
+    })
 }
 
 // Send a verification code to in-game mail
@@ -342,7 +362,6 @@ async function getUsersUIDs(message, cookieJar, i) {
 async function redeemCode(cookieJar, user, args, message) {
     // Variables
     let description = `\`\`\`json\n${user.name} (${user.uid}): {\n`
-    let arrayExpired = []
 
     // Iterate over args (codes)
     for (let i = 0; i < args.length; i++) {
@@ -396,27 +415,6 @@ async function redeemCode(cookieJar, user, args, message) {
 
     // Add end of code block
     description += '```'
-
-    // Delete codes from DB that have expired
-    for (let i = 0; i < arrayExpired.length; i++) {
-        // Get code
-        const codeToBeDeleted = controllerCodes.getOne({ code: arrayExpired[i] })
-        // If exists
-        if (codeToBeDeleted.code == 200) {
-            // Delete code
-            controllerCodes.delete({ code: arrayExpired[i] })
-                .then((code) => {
-                    message.client.users.fetch(config.creators.Zebiano, false).then((user) => {
-                        user.send(`Deleted redemption code \`${arrayExpired[i]}\` because it has expired.`)
-                    })
-                })
-                .catch((err) => {
-                    message.client.users.fetch(config.creators.Zebiano, false).then((user) => {
-                        user.send(`Tried to delete redemption code \`${arrayExpired[i]}\` because it has expired, but encountered an error: ${err}`)
-                    })
-                })
-        }
-    }
 
     // Return description
     return description

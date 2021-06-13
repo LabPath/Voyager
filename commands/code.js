@@ -221,7 +221,7 @@ async function deleteCode(message, code, dbGuild) {
     let codes = dbGuild.data.codes
 
     // Delete messages from redemption codes channel
-    if (dbGuild.data.channels && dbGuild.data.channels.codes) {
+    if (dbGuild.data.channels && dbGuild.data.channels.codes && dbGuild.data.codes[code.data.code]) {
         const channel = await message.client.channels.cache.get(dbGuild.data.channels.codes)
         channel.messages.fetch(dbGuild.data.codes[code.data.code].codeMsgId)
             .then(msg => msg.delete())
@@ -347,11 +347,12 @@ async function sendNotification(message, code, dbGuild) {
                     // Variables
                     let message = `**New redemption code:** \`${code.data.code}\`\n`
                     message += `${helper.generateRedemptionCodesInfo(code.data.expiration_date, code.data.rewards)}\n\n`
+                    message += `Run the following command if you want me to redeem it for you:`
 
                     // Send messages
                     try {
                         user.send(message)
-                        user.send(`Run \`@Voyager redeem ${code.data.code}\` if you want me to redeem it for you!`)
+                        user.send(`\`@Voyager redeem ${code.data.code}\``)
                     } catch (err) {
                         // Catch in case Voyager is not able to send messages to user
                         echo.warn(`Unable to send new code to user ${users.data[i].discord_id}.`)

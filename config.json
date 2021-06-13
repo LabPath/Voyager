@@ -63,7 +63,7 @@
         },
         "redeem": {
             "questions": [
-                "Enter the verification code sent to your in-game mail within 1 minute. No need to mention me."
+                "Enter the verification code from your in-game settings page. No need to mention me."
             ]
         },
         "code": {
@@ -82,7 +82,7 @@
         "redeem": {
             "logout": "https://cdkey.lilith.com/api/logout?uid=",
             "sendMail": "https://cdkey.lilith.com/api/send-mail",
-            "verifyCode": "https://cdkey.lilith.com/api/verify-code",
+            "verifyCode": "https://cdkey.lilith.com/api/verify-afk-code",
             "users": "https://cdkey.lilith.com/api/users",
             "consume": "https://cdkey.lilith.com/api/cd-key/consume"
         }
