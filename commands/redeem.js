@@ -152,13 +152,14 @@ module.exports = {
                                 // Message Zeb to delete code
                                 message.client.users.fetch(config.creators.Zebiano, false).then((user) => {
                                     user.send(`Code \`${arrayExpired[i]}\` has expired, delete it with \`@Voyager code ${arrayExpired[i]}\`.`)
+
+                                    // Remove entry from array
+                                    const index = arrayExpired.indexOf(codeToBeDeleted.data.code)
+                                    if (index > -1) arrayExpired.splice(index, 1)
                                 })
                             }
                         })
                 }
-
-                // Reset Array
-                arrayExpired = []
             }
         }
     }
