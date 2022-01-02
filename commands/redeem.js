@@ -402,7 +402,7 @@ async function redeemCode(cookieJar, user, args, message) {
                     console.log('--- Redeem Code ---')
                     console.log(res)
                     message.channel.send(config.texts.generalError)
-                    return 'breakAll'
+                    return 'break_all'
             }
         }
         // If something went wrong
@@ -410,7 +410,7 @@ async function redeemCode(cookieJar, user, args, message) {
             console.log('--- Redeem Code ---')
             console.log(res)
             message.channel.send(config.texts.generalError)
-            return 'breakAll'
+            return 'break_all'
         }
     }
 
