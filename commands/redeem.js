@@ -127,10 +127,11 @@ module.exports = {
                 else return
 
                 // Send message
-                message.channel.send('Working on it...')
+                message.channel.send('**This may take a while**, please be patient.')
 
                 // Iterate over Users
                 for (let j = 0; j < users.length; j++) {
+                    message.channel.send(`Redeeming for \`${users[j].name} (${users[j].uid})\`...`)
                     data = await redeemCode(cookieJar, users[j], args, message)
                     if (data == 'break_all') break
                     else message.channel.send(data)
@@ -362,7 +363,7 @@ async function getUsersUIDs(message, cookieJar, i) {
 // Redeem code for user
 async function redeemCode(cookieJar, user, args, message) {
     // Variables
-    let description = `\`\`\`json\n${user.name} (${user.uid}): {\n`
+    let description = `\`\`\`ini\n`
 
     // Iterate over args (codes)
     for (let i = 0; i < args.length; i++) {
@@ -385,18 +386,18 @@ async function redeemCode(cookieJar, user, args, message) {
         if (res.status == 200 && res.data != undefined) {
             switch (res.data.info) {
                 case 'ok':
-                    description += `  "${args[i]}": "Redeemed!",\n`
+                    description += `"${args[i]}" = "Redeemed!"\n`
                     if (dbStats) controllerStat.put(dbStats.data._id, { $inc: { 'redemption_codes.totalRedeemed': 1 } })
                     break
                 case 'err_cdkey_expired':
-                    description += `  "${args[i]}": "Has expired.",\n`
+                    description += `"${args[i]}" = "Has expired."\n`
                     if (!arrayExpired.includes(args[i])) arrayExpired.push(args[i])
                     break
                 case 'err_cdkey_batch_error':
-                    description += `  "${args[i]}": "Already claimed.",\n`
+                    description += `"${args[i]}" = "Already claimed."\n`
                     break
                 case 'err_cdkey_record_not_found':
-                    description += `  "${args[i]}": "Invalid code.",\n`
+                    description += `"${args[i]}" = "Invalid code."\n`
                     break
                 default:
                     console.log('--- Redeem Code ---')
@@ -412,6 +413,9 @@ async function redeemCode(cookieJar, user, args, message) {
             message.channel.send(config.texts.generalError)
             return 'break_all'
         }
+        
+        // Wait ms before attempting to redeem another code for the same "server" (account)
+        if (args.length > 1) await helper.wait(config.timings.lilithApi.redeemNewCode)
     }
 
     // Add end of code block

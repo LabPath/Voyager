@@ -116,7 +116,7 @@ async function createUser(message, user) {
 // Show user an embed with info and ask to update or delete
 async function showUser(message, user) {
     // Variables
-    let description = `\`\`\`json\nUID: ${user.data.afk.afk_uids}\nNotify: ${user.data.afk.notify}\`\`\`\nDo you want to update or delete it?`
+    let description = `\`\`\`json\nUID: ${user.data.afk.afk_uids}\nNotify: ${user.data.afk.notify}\`\`\`\nDo you want to update or delete it, or quit?`
     const filter = (reaction, user) => {
         if (user.id === message.author.id && ['🔄', '❌', '🇶'].includes(reaction.emoji.name)) return true
         return false
