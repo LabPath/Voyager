@@ -79,7 +79,7 @@ client.once('ready', async function () {
     }
 
     // Cache reaction messages if dbGuilds[i] has a roles channel
-    for (i of dbGuilds.data) if (i.channels && i.channels.roles) {
+    for (i of dbGuilds.data) if (i.channels?.roles) {
         await client.channels.cache
             .get(i.channels.roles).messages.fetch(i.message_reaction_id)
             .catch(async err => { if (err.message.includes('Unknown')) await controllerGuild.put(i._id, { message_reaction_id: null }) })
@@ -154,7 +154,7 @@ client.on('message', async function (message) {
         if (!command) return
 
         // Check if user is running command
-        if (command.activeUsers && command.activeUsers.includes(message.author.id)) return message.channel.send(config.texts.stillRunningCommand)
+        if (command.activeUsers?.includes(message.author.id)) return message.channel.send(config.texts.stillRunningCommand)
 
         // Check if command needs dbGuild
         if (command.needsDatabaseGuild || command.devOnly) {

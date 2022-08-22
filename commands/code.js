@@ -221,7 +221,7 @@ async function deleteCode(message, code, dbGuild) {
     let codes = dbGuild.data.codes
 
     // Delete messages from redemption codes channel
-    if (dbGuild.data.channels && dbGuild.data.channels.codes && dbGuild.data.codes[code.data.code]) {
+    if (dbGuild.data.channels?.codes && dbGuild.data.codes[code.data.code]) {
         const channel = await message.client.channels.cache.get(dbGuild.data.channels.codes)
         channel.messages.fetch(dbGuild.data.codes[code.data.code].codeMsgId)
             .then(msg => msg.delete())
@@ -276,7 +276,7 @@ async function askToPublish(message, code) {
 // Publish code to channel and send users a notification
 async function publishCode(message, code, dbGuild) {
     // Check if codes channel is set
-    if (dbGuild.data.channels && dbGuild.data.channels.codes) {
+    if (dbGuild.data.channels?.codes) {
         // Get codes role ID
         for (let i = 0; i < dbGuild.data.roles.length; i++) {
             if (dbGuild.data.roles[i]['redemption_codes']) {
@@ -367,7 +367,7 @@ async function sendNotification(message, code, dbGuild) {
                 }
                 else {
                     console.log(err)
-                    if (dbGuild.data.channels && dbGuild.data.channels.logs) helper.log(message.client, dbGuild.data.channels.logs, err)
+                    if (dbGuild.data.channels?.logs) helper.log(message.client, dbGuild.data.channels.logs, err)
                 }
             })
     }

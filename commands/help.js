@@ -89,7 +89,7 @@ module.exports = {
             // Iterate commands
             message.client.commands.each((cmd) => {
                 // If trusted or developer, show every help command
-                if (dbGuild && (dbGuild.data.developers.includes(message.author.id) || dbGuild.data.trusted.includes(message.author.id))) {
+                if (dbGuild?.data.developers.includes(message.author.id) || dbGuild?.data.trusted.includes(message.author.id)) {
                     embed.addField(`\`${cmd.help.name}\``, cmd.help.title, true)
                 }
                 // Show only isVisible = true commands
@@ -110,7 +110,7 @@ function checkCommandArguments(args, message, dbGuild) {
         // Iterate commands
         for (i of message.client.commands.values()) {
             // If trusted or developer, show every help command
-            if (dbGuild && (dbGuild.data.developers.includes(message.author.id) || dbGuild.data.trusted.includes(message.author.id))) {
+            if (dbGuild?.data.developers.includes(message.author.id) || dbGuild?.data.trusted.includes(message.author.id)) {
                 if (i.name == args[0] || i.aliases.includes(args[0])) return true
             }
             // Show only isVisible = true commands
