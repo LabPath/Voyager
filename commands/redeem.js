@@ -394,14 +394,19 @@ async function redeemCode(cookieJar, user, args, message) {
                     if (!arrayExpired.includes(args[i])) arrayExpired.push(args[i])
                     break
                 case 'err_cdkey_batch_error':
+                case 'err_cdkey_already_used':
                     description += `"${args[i]}" = "Already claimed."\n`
                     break
                 case 'err_cdkey_record_not_found':
                     description += `"${args[i]}" = "Invalid code."\n`
                     break
+                case 'err_cdkey_char_invalid':
+                    description += `"${args[i]}" = "Invalid character."\n`
+                    break
                 default:
                     console.log('--- Redeem Code ---')
                     console.log(res)
+                    console.log(res.data)
                     message.channel.send(config.texts.generalError)
                     return 'break_all'
             }
@@ -413,7 +418,7 @@ async function redeemCode(cookieJar, user, args, message) {
             message.channel.send(config.texts.generalError)
             return 'break_all'
         }
-        
+
         // Wait ms before attempting to redeem another code for the same "server" (account)
         if (args.length > 1) await helper.wait(config.timings.lilithApi.redeemNewCode)
     }
