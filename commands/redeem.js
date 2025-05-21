@@ -97,8 +97,8 @@ module.exports = {
                 // console.log(message.author.username, user.data.afk.afk_uids, user.data.afk.afk_uids[0], user.data.afk.afk_uids[i])
 
                 // Logout first
-                if (data) data = await logout(message, cookieJar, user.data.afk.afk_uids[i])
-                else return
+                // if (data) data = await logout(message, cookieJar, user.data.afk.afk_uids[i])
+                // else return
                 // if (data) console.log('Logout', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
 
                 // Send Verification Mail
@@ -117,13 +117,15 @@ module.exports = {
                 else return
                 // if (data) console.log('Verification Code', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
 
+                const bearer = data.bearer
+
                 // Get alt Accounts
-                if (data) data = await getUsersUIDs(message, cookieJar, user.data.afk.afk_uids[i])
+                if (data.value) data = await getUsersUIDs(message, cookieJar, user.data.afk.afk_uids[i], bearer)
                 else return
                 // if (data) console.log('Users', message.author.username, user.data.afk.afk_uids[i], cookieJar.store.idx)
 
                 // Set Users
-                if (data) users = data.data.data.users
+                if (data) users = data.data.data.roles
                 else return
 
                 // Send message
@@ -132,7 +134,7 @@ module.exports = {
                 // Iterate over Users
                 for (let j = 0; j < users.length; j++) {
                     message.channel.send(`Redeeming for \`${users[j].name} (${users[j].uid})\`...`)
-                    data = await redeemCode(cookieJar, users[j], args, message)
+                    data = await redeemCode(cookieJar, users[j], args, message, bearer)
                     if (data == 'break_all') break
                     else message.channel.send(data)
                 }
@@ -237,7 +239,7 @@ async function sendVerificationMail(message, cookieJar, i) {
     // Variables
     const body = {
         game: 'afk',
-        uid: i
+        appuid: i
     }
     const options = {
         jar: cookieJar
@@ -273,8 +275,8 @@ async function sendVerificationMail(message, cookieJar, i) {
 async function sendVerificationCode(message, cookieJar, i, verificationCode) {
     // Variables
     const body = {
-        game: 'afk',
-        uid: i,
+        game: 'afk', // TODO: When implementing "Companions" server, make use of 'afkgroup'
+        appuid: i,
         code: verificationCode
     }
     const options = {
@@ -287,7 +289,7 @@ async function sendVerificationCode(message, cookieJar, i, verificationCode) {
     // If all is well
     if (res.status == 200 && res.data != undefined) {
         switch (res.data.info) {
-            case 'ok': return true
+            case 'ok': return { value: true, bearer: res.data.data.token }
             case 'err_code_must_be_valid_string':
                 // Variables
                 var data = null
@@ -298,7 +300,7 @@ async function sendVerificationCode(message, cookieJar, i, verificationCode) {
                 // Ask for verification code again
                 verificationCode = await askVerificationCode(message)
                 if (verificationCode) await sendVerificationCode(message, cookieJar, i, verificationCode)
-                if (data) return true
+                if (data) return { value: true, bearer: res.data.data.token }
             case 'err_wrong_code':
                 // Variables
                 var data = null
@@ -309,7 +311,7 @@ async function sendVerificationCode(message, cookieJar, i, verificationCode) {
                 // Ask for verification code again
                 verificationCode = await askVerificationCode(message)
                 if (verificationCode) data = await sendVerificationCode(message, cookieJar, i, verificationCode)
-                if (data) return true
+                if (data) return { value: true, bearer: res.data.data.token }
             default:
                 console.log('--- Send Verification Code ---')
                 console.log(res)
@@ -327,14 +329,15 @@ async function sendVerificationCode(message, cookieJar, i, verificationCode) {
 }
 
 // Gets all the UIDs from logged in user
-async function getUsersUIDs(message, cookieJar, i) {
+async function getUsersUIDs(message, cookieJar, i, bearer) {
     // Variables
     const body = {
-        game: 'afk',
-        uid: i
+        game: 'afk', // TODO: When implementing "Companions" server, make use of 'afkgroup'
+        appuid: i
     }
     const options = {
-        jar: cookieJar
+        jar: cookieJar,
+        headers: { Authorization: `Bearer ${bearer}` }
     }
 
     // Request
@@ -361,7 +364,7 @@ async function getUsersUIDs(message, cookieJar, i) {
 }
 
 // Redeem code for user
-async function redeemCode(cookieJar, user, args, message) {
+async function redeemCode(cookieJar, user, args, message, bearer) {
     // Variables
     let description = `\`\`\`ini\n`
 
@@ -369,21 +372,31 @@ async function redeemCode(cookieJar, user, args, message) {
     for (let i = 0; i < args.length; i++) {
         // Variables
         const body = {
-            type: "cdkey_web",
-            game: "afk",
-            uid: user.uid,
-            cdkey: args[i]
+            appId: "6241329",
+            cdkey: args[i],
+            game: "afk", // TODO: When implementing "Companions" server, make use of 'afkgroup'
+            roleId: user.uid,
+            // TODO: When implementing "Companions" server, add new entry 'gmEnvId: "dglobal"'
         }
         const options = {
-            jar: cookieJar
+            jar: cookieJar,
+            headers: { Authorization: `Bearer ${bearer}` }
         }
 
         // Request
-        const res = await axios.post(config.links.redeem.consume, body, options)
+        let res
+        try {
+            res = await axios.post(config.links.redeem.consume, body, options)
+            // console.log('TRY')
+        } catch (error) {
+            res = error.response
+            // console.log('CATCH')
+        }
         if (dbStats) controllerStat.put(dbStats.data._id, { $inc: { 'redemption_codes.totalAttempts': 1 } })
 
+        // console.log(res)
         // If all is well
-        if (res.status == 200 && res.data != undefined) {
+        if (res.data != undefined) {
             switch (res.data.info) {
                 case 'ok':
                     description += `"${args[i]}" = "Redeemed!"\n`
@@ -402,6 +415,9 @@ async function redeemCode(cookieJar, user, args, message) {
                     break
                 case 'err_cdkey_char_invalid':
                     description += `"${args[i]}" = "Invalid character."\n`
+                    break
+                case 'err_cdkey_channel_error':
+                    description += `"${args[i]}" = "Redemption code only valid for 'Companions' server(s)."\n`
                     break
                 default:
                     console.log('--- Redeem Code ---')

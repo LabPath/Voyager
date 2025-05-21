@@ -85,7 +85,7 @@
             "sendMail": "https://cdkey.lilith.com/api/send-mail",
             "verifyCode": "https://cdkey.lilith.com/api/verify-afk-code",
             "users": "https://cdkey.lilith.com/api/users",
-            "consume": "https://cdkey.lilith.com/api/cd-key/consume"
+            "consume": "https://cdkey.lilith.com/api/consume"
         }
     },
     "timings": {
